@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/Styles/admin/styles.css" />
+        <title>MyWebRTC Installation</title>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1>MyWebRTC Installation</h1>
+            </div>
+        </header>
+        <div class="container">
+            <p>Welcome to the MyWebRTC installer.</p>
+            <p>This wizard will guide you through the set up process.</p>
+            <form action="/register" method="post">
+                <fieldset>
+                    <label>Username</label>
+                    <p id="rtc-username-empty" class="warning hidden">Please enter a username</p>
+                    <p id="rtc-username-invalid" class="warning hidden">Username is invalid</p>
+                    <input id="rtc-install-username" type="text" name="username" />
+                </fieldset>
+                <fieldset>
+                    <label>Email Address</label>
+                    <p id="rtc-email-empty" class="warning hidden">Please enter your email address</p>
+                    <p id="rtc-email-invalid" class="warning hidden">This is not a valid email address</p>
+                    <input id="rtc-install-email" type="text" name="email" />
+                </fieldset>
+                <fieldset>
+                    <label>Password</label>
+                    <p id="rtc-password-empty" class="warning hidden">Please enter a password</p>
+                    <p id="rtc-password-invalid" class="warning hidden">Password is invalid</p>
+                    <input id="rtc-install-password" type="password" name="password" />
+                </fieldset>
+                <fieldset>
+                    <label>Confirm Password</label>
+                    <p id="rtc-password-mismatch" class="warning hidden">Password doesn't match</p>
+                    <input id="rtc-install-password-confirm" type="password" />
+                </fieldset>
+                <button id='rtc-register-button' type="submit">Register</button>
+            </form>
+        </div>
+        
+        
+        <script src="/JS/jquery.min.js"></script>
+        <script src="/JS/Install/install.js"></script>
+    </body>
+</html>

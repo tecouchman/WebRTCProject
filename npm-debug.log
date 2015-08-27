@@ -1,0 +1,377 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'mongoose-auto-increment' ]
+2 info using npm@2.11.3
+3 info using node@v0.12.7
+4 verbose install initial load of /Users/Tom/Documents/development/web/WebRTCProject/package.json
+5 warn package.json socket-chat-example@0.1.0 No repository field.
+6 warn package.json socket-chat-example@0.1.0 No license field.
+7 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/body-parser/package.json
+8 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/ect/package.json
+9 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/express/package.json
+10 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose/package.json
+11 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/passport/package.json
+12 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/passport-local/package.json
+13 verbose installManyTop reading scoped package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/socket.io/package.json
+14 info package.json ect@0.5.9 No license field.
+15 info package.json passport-local@1.0.0 No license field.
+16 info package.json socket.io@1.3.6 No license field.
+17 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/package.json
+18 silly cache add args [ 'mongoose-auto-increment', null ]
+19 verbose cache add spec mongoose-auto-increment
+20 silly cache add parsed spec { raw: 'mongoose-auto-increment',
+20 silly cache add   scope: null,
+20 silly cache add   name: 'mongoose-auto-increment',
+20 silly cache add   rawSpec: '',
+20 silly cache add   spec: '*',
+20 silly cache add   type: 'range' }
+21 silly addNamed mongoose-auto-increment@*
+22 verbose addNamed "*" is a valid semver range for mongoose-auto-increment
+23 silly addNameRange { name: 'mongoose-auto-increment', range: '*', hasData: false }
+24 silly mapToRegistry name mongoose-auto-increment
+25 silly mapToRegistry using default registry
+26 silly mapToRegistry registry https://registry.npmjs.org/
+27 silly mapToRegistry uri https://registry.npmjs.org/mongoose-auto-increment
+28 verbose addNameRange registry:https://registry.npmjs.org/mongoose-auto-increment not in flight; fetching
+29 verbose request uri https://registry.npmjs.org/mongoose-auto-increment
+30 verbose request no auth needed
+31 info attempt registry request try #1 at 2:54:57 AM
+32 verbose request id 7754bda433bc1090
+33 http request GET https://registry.npmjs.org/mongoose-auto-increment
+34 http 200 https://registry.npmjs.org/mongoose-auto-increment
+35 silly get cb [ 200,
+35 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+35 silly get     etag: '"HVREF0HN8SWDQOQWFQY5549N"',
+35 silly get     'content-type': 'application/json',
+35 silly get     'cache-control': 'max-age=60',
+35 silly get     'content-length': '54549',
+35 silly get     'accept-ranges': 'bytes',
+35 silly get     date: 'Tue, 25 Aug 2015 17:54:49 GMT',
+35 silly get     via: '1.1 varnish',
+35 silly get     age: '0',
+35 silly get     connection: 'keep-alive',
+35 silly get     'x-served-by': 'cache-nrt6124-NRT',
+35 silly get     'x-cache': 'MISS',
+35 silly get     'x-cache-hits': '0',
+35 silly get     'x-timer': 'S1440525289.105711,VS0,VE546',
+35 silly get     vary: 'Accept' } ]
+36 verbose get saving mongoose-auto-increment to /Users/Tom/.npm/registry.npmjs.org/mongoose-auto-increment/.cache.json
+37 silly addNameRange number 2 { name: 'mongoose-auto-increment', range: '*', hasData: true }
+38 silly addNameRange versions [ 'mongoose-auto-increment',
+38 silly addNameRange   [ '1.0.0',
+38 silly addNameRange     '1.0.1',
+38 silly addNameRange     '1.1.0',
+38 silly addNameRange     '1.2.0',
+38 silly addNameRange     '1.1.1',
+38 silly addNameRange     '1.2.1',
+38 silly addNameRange     '1.2.2',
+38 silly addNameRange     '1.2.3',
+38 silly addNameRange     '1.3.0',
+38 silly addNameRange     '1.3.1',
+38 silly addNameRange     '2.0.0',
+38 silly addNameRange     '2.0.1',
+38 silly addNameRange     '2.0.2',
+38 silly addNameRange     '2.0.3',
+38 silly addNameRange     '2.0.4',
+38 silly addNameRange     '2.1.0',
+38 silly addNameRange     '2.1.1',
+38 silly addNameRange     '2.1.2',
+38 silly addNameRange     '2.1.3',
+38 silly addNameRange     '2.1.4',
+38 silly addNameRange     '3.0.0',
+38 silly addNameRange     '3.0.1',
+38 silly addNameRange     '3.0.2',
+38 silly addNameRange     '3.0.3',
+38 silly addNameRange     '3.0.4',
+38 silly addNameRange     '3.0.5',
+38 silly addNameRange     '3.0.6',
+38 silly addNameRange     '3.0.7',
+38 silly addNameRange     '3.0.8',
+38 silly addNameRange     '3.1.0',
+38 silly addNameRange     '3.2.0',
+38 silly addNameRange     '3.2.2',
+38 silly addNameRange     '3.2.3',
+38 silly addNameRange     '4.0.0',
+38 silly addNameRange     '3.2.4' ] ]
+39 silly addNamed mongoose-auto-increment@4.0.0
+40 verbose addNamed "4.0.0" is a plain semver version for mongoose-auto-increment
+41 silly mapToRegistry name mongoose-auto-increment
+42 silly mapToRegistry using default registry
+43 silly mapToRegistry registry https://registry.npmjs.org/
+44 silly mapToRegistry uri https://registry.npmjs.org/mongoose-auto-increment
+45 verbose addRemoteTarball https://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz not in flight; adding
+46 verbose addRemoteTarball [ 'https://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz',
+46 verbose addRemoteTarball   '86531b5b07a434fa88ba0c04694c214230b435cc' ]
+47 info retry fetch attempt 1 at 2:54:58 AM
+48 info attempt registry request try #1 at 2:54:58 AM
+49 http fetch GET https://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz
+50 http fetch 200 https://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz
+51 silly fetchAndShaCheck shasum 86531b5b07a434fa88ba0c04694c214230b435cc
+52 verbose addTmpTarball /var/folders/x7/zspyjc890pb3c9n4fb33y_800000gn/T/npm-5786-46c4af85/registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz not in flight; adding
+53 verbose addTmpTarball already have metadata; skipping unpack for mongoose-auto-increment@4.0.0
+54 silly cache afterAdd mongoose-auto-increment@4.0.0
+55 verbose afterAdd /Users/Tom/.npm/mongoose-auto-increment/4.0.0/package/package.json not in flight; writing
+56 verbose afterAdd /Users/Tom/.npm/mongoose-auto-increment/4.0.0/package/package.json written
+57 silly install resolved [ { name: 'mongoose-auto-increment',
+57 silly install resolved     version: '4.0.0',
+57 silly install resolved     description: 'This plugin allows you to auto-increment any field on any mongoose schema that you wish.',
+57 silly install resolved     repository:
+57 silly install resolved      { type: 'git',
+57 silly install resolved        url: 'git://github.com/codetunnel/mongoose-auto-increment.git' },
+57 silly install resolved     dependencies: { extend: '^2.0.0' },
+57 silly install resolved     peerDependencies: { mongoose: '~4.0.0' },
+57 silly install resolved     devDependencies: { async: '*', chai: '*', mocha: '*', mongoose: '~4.0.0' },
+57 silly install resolved     keywords:
+57 silly install resolved      [ 'mongoose',
+57 silly install resolved        'plugin',
+57 silly install resolved        'auto-increment',
+57 silly install resolved        'auto',
+57 silly install resolved        'increment',
+57 silly install resolved        'automatic',
+57 silly install resolved        'autoincrement',
+57 silly install resolved        'auto_increment',
+57 silly install resolved        'autoinc',
+57 silly install resolved        'auto-inc',
+57 silly install resolved        'auto_inc',
+57 silly install resolved        'pureautoinc',
+57 silly install resolved        'mongoose-pureautoinc' ],
+57 silly install resolved     author:
+57 silly install resolved      { name: 'Alex Ford',
+57 silly install resolved        email: 'alex.ford@codetunnel.com',
+57 silly install resolved        url: 'Chevex' },
+57 silly install resolved     contributors: [ [Object], [Object], [Object], [Object] ],
+57 silly install resolved     scripts: { test: 'node_modules/mocha/bin/mocha' },
+57 silly install resolved     bugs: { url: 'https://github.com/codetunnel/mongoose-auto-increment/issues' },
+57 silly install resolved     gitHead: '7b36fc6ef64eee3ac85bd086b208eaaf986d99f5',
+57 silly install resolved     homepage: 'https://github.com/codetunnel/mongoose-auto-increment',
+57 silly install resolved     _id: 'mongoose-auto-increment@4.0.0',
+57 silly install resolved     _shasum: '86531b5b07a434fa88ba0c04694c214230b435cc',
+57 silly install resolved     _from: 'mongoose-auto-increment@*',
+57 silly install resolved     _npmVersion: '2.6.1',
+57 silly install resolved     _nodeVersion: '0.12.0',
+57 silly install resolved     _npmUser: { name: 'chevex', email: 'alex.ford@codetunnel.com' },
+57 silly install resolved     maintainers: [ [Object] ],
+57 silly install resolved     dist:
+57 silly install resolved      { shasum: '86531b5b07a434fa88ba0c04694c214230b435cc',
+57 silly install resolved        tarball: 'http://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz' },
+57 silly install resolved     directories: {},
+57 silly install resolved     _resolved: 'https://registry.npmjs.org/mongoose-auto-increment/-/mongoose-auto-increment-4.0.0.tgz' } ]
+58 info install mongoose-auto-increment@4.0.0 into /Users/Tom/Documents/development/web/WebRTCProject
+59 info installOne mongoose-auto-increment@4.0.0
+60 verbose installOne of mongoose-auto-increment to /Users/Tom/Documents/development/web/WebRTCProject not in flight; installing
+61 verbose lock using /Users/Tom/.npm/_locks/mongoose-auto-increment-b64f0ea525037cba.lock for /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+62 silly install write writing mongoose-auto-increment 4.0.0 to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+63 verbose unbuild node_modules/mongoose-auto-increment
+64 silly gentlyRm /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment is being purged from base /Users/Tom/Documents/development/web/WebRTCProject
+65 verbose gentlyRm don't care about contents; nuking /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+66 verbose tar unpack /Users/Tom/.npm/mongoose-auto-increment/4.0.0/package.tgz
+67 verbose tar unpacking to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+68 silly gentlyRm /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment is being purged
+69 verbose gentlyRm don't care about contents; nuking /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+70 silly gunzTarPerm modes [ '755', '644' ]
+71 silly gunzTarPerm extractEntry package.json
+72 silly gunzTarPerm extractEntry .npmignore
+73 silly gunzTarPerm extractEntry README.md
+74 silly gunzTarPerm extractEntry LICENSE
+75 silly gunzTarPerm extractEntry index.js
+76 silly gunzTarPerm extractEntry .travis.yml
+77 silly gunzTarPerm extractEntry CONTRIBUTING.md
+78 silly gunzTarPerm extractEntry test/test.js
+79 silly gunzTarPerm extractEntry test/mocha.opts
+80 verbose write writing to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/package.json
+81 info preinstall mongoose-auto-increment@4.0.0
+82 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/package.json
+83 silly prepareForInstallMany adding extend@^2.0.0 from mongoose-auto-increment dependencies
+84 silly prepareForInstallMany adding mongoose@~4.0.0 from mongoose-auto-increment peerDependencies
+85 warn peerDependencies The peer dependency mongoose@~4.0.0 included from mongoose-auto-increment will no
+86 warn peerDependencies longer be automatically installed to fulfill the peerDependency
+87 warn peerDependencies in npm 3+. Your application will need to depend on it explicitly.
+88 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/package.json
+89 silly cache add args [ 'extend@^2.0.0', null ]
+90 verbose cache add spec extend@^2.0.0
+91 silly cache add parsed spec { raw: 'extend@^2.0.0',
+91 silly cache add   scope: null,
+91 silly cache add   name: 'extend',
+91 silly cache add   rawSpec: '^2.0.0',
+91 silly cache add   spec: '>=2.0.0 <3.0.0',
+91 silly cache add   type: 'range' }
+92 silly addNamed extend@>=2.0.0 <3.0.0
+93 verbose addNamed ">=2.0.0 <3.0.0" is a valid semver range for extend
+94 silly addNameRange { name: 'extend', range: '>=2.0.0 <3.0.0', hasData: false }
+95 silly mapToRegistry name extend
+96 silly mapToRegistry using default registry
+97 silly mapToRegistry registry https://registry.npmjs.org/
+98 silly mapToRegistry uri https://registry.npmjs.org/extend
+99 verbose addNameRange registry:https://registry.npmjs.org/extend not in flight; fetching
+100 verbose request uri https://registry.npmjs.org/extend
+101 verbose request no auth needed
+102 info attempt registry request try #1 at 2:54:59 AM
+103 http request GET https://registry.npmjs.org/extend
+104 http 200 https://registry.npmjs.org/extend
+105 silly get cb [ 200,
+105 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+105 silly get     etag: '"C1I6NMXYFPLWYM2UZ47VPVXL4"',
+105 silly get     'content-type': 'application/json',
+105 silly get     'cache-control': 'max-age=60',
+105 silly get     'content-length': '14025',
+105 silly get     'accept-ranges': 'bytes',
+105 silly get     date: 'Tue, 25 Aug 2015 17:54:50 GMT',
+105 silly get     via: '1.1 varnish',
+105 silly get     age: '38',
+105 silly get     connection: 'keep-alive',
+105 silly get     'x-served-by': 'cache-nrt6123-NRT',
+105 silly get     'x-cache': 'HIT',
+105 silly get     'x-cache-hits': '1',
+105 silly get     'x-timer': 'S1440525290.899842,VS0,VE0',
+105 silly get     vary: 'Accept' } ]
+106 verbose get saving extend to /Users/Tom/.npm/registry.npmjs.org/extend/.cache.json
+107 silly addNameRange number 2 { name: 'extend', range: '>=2.0.0 <3.0.0', hasData: true }
+108 silly addNameRange versions [ 'extend',
+108 silly addNameRange   [ '1.0.0',
+108 silly addNameRange     '1.1.0',
+108 silly addNameRange     '1.1.1',
+108 silly addNameRange     '1.1.3',
+108 silly addNameRange     '1.2.0',
+108 silly addNameRange     '1.2.1',
+108 silly addNameRange     '1.3.0',
+108 silly addNameRange     '2.0.0',
+108 silly addNameRange     '2.0.1',
+108 silly addNameRange     '3.0.0' ] ]
+109 silly addNamed extend@2.0.1
+110 verbose addNamed "2.0.1" is a plain semver version for extend
+111 silly mapToRegistry name extend
+112 silly mapToRegistry using default registry
+113 silly mapToRegistry registry https://registry.npmjs.org/
+114 silly mapToRegistry uri https://registry.npmjs.org/extend
+115 verbose addRemoteTarball https://registry.npmjs.org/extend/-/extend-2.0.1.tgz not in flight; adding
+116 verbose addRemoteTarball [ 'https://registry.npmjs.org/extend/-/extend-2.0.1.tgz',
+116 verbose addRemoteTarball   '1ee8010689e7395ff9448241c98652bc759a8260' ]
+117 info retry fetch attempt 1 at 2:54:59 AM
+118 info attempt registry request try #1 at 2:54:59 AM
+119 http fetch GET https://registry.npmjs.org/extend/-/extend-2.0.1.tgz
+120 http fetch 200 https://registry.npmjs.org/extend/-/extend-2.0.1.tgz
+121 silly fetchAndShaCheck shasum 1ee8010689e7395ff9448241c98652bc759a8260
+122 verbose addTmpTarball /var/folders/x7/zspyjc890pb3c9n4fb33y_800000gn/T/npm-5786-46c4af85/registry.npmjs.org/extend/-/extend-2.0.1.tgz not in flight; adding
+123 verbose addTmpTarball already have metadata; skipping unpack for extend@2.0.1
+124 silly cache afterAdd extend@2.0.1
+125 verbose afterAdd /Users/Tom/.npm/extend/2.0.1/package/package.json not in flight; writing
+126 verbose afterAdd /Users/Tom/.npm/extend/2.0.1/package/package.json written
+127 silly install resolved [ { name: 'extend',
+127 silly install resolved     author:
+127 silly install resolved      { name: 'Stefan Thomas',
+127 silly install resolved        email: 'justmoon@members.fsf.org',
+127 silly install resolved        url: 'http://www.justmoon.net' },
+127 silly install resolved     version: '2.0.1',
+127 silly install resolved     description: 'Port of jQuery.extend for node.js and the browser',
+127 silly install resolved     main: 'index',
+127 silly install resolved     scripts:
+127 silly install resolved      { test: 'npm run lint && node test/index.js && npm run coverage-quiet',
+127 silly install resolved        coverage: 'covert test/index.js',
+127 silly install resolved        'coverage-quiet': 'covert test/index.js --quiet',
+127 silly install resolved        lint: 'jscs *.js */*.js' },
+127 silly install resolved     contributors: [ [Object] ],
+127 silly install resolved     keywords: [ 'extend', 'clone', 'merge' ],
+127 silly install resolved     repository:
+127 silly install resolved      { type: 'git',
+127 silly install resolved        url: 'git+https://github.com/justmoon/node-extend.git' },
+127 silly install resolved     dependencies: {},
+127 silly install resolved     devDependencies: { tape: '^4.0.0', covert: '^1.0.1', jscs: '^1.11.3' },
+127 silly install resolved     license: 'MIT',
+127 silly install resolved     gitHead: 'ce3790222d3d2051f728f74be9565f155ed599c3',
+127 silly install resolved     bugs: { url: 'https://github.com/justmoon/node-extend/issues' },
+127 silly install resolved     homepage: 'https://github.com/justmoon/node-extend#readme',
+127 silly install resolved     _id: 'extend@2.0.1',
+127 silly install resolved     _shasum: '1ee8010689e7395ff9448241c98652bc759a8260',
+127 silly install resolved     _from: 'extend@>=2.0.0 <3.0.0',
+127 silly install resolved     _npmVersion: '2.8.3',
+127 silly install resolved     _nodeVersion: '1.8.1',
+127 silly install resolved     _npmUser: { name: 'ljharb', email: 'ljharb@gmail.com' },
+127 silly install resolved     dist:
+127 silly install resolved      { shasum: '1ee8010689e7395ff9448241c98652bc759a8260',
+127 silly install resolved        tarball: 'http://registry.npmjs.org/extend/-/extend-2.0.1.tgz' },
+127 silly install resolved     maintainers: [ [Object], [Object] ],
+127 silly install resolved     directories: {},
+127 silly install resolved     _resolved: 'https://registry.npmjs.org/extend/-/extend-2.0.1.tgz' } ]
+128 info install extend@2.0.1 into /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+129 info installOne extend@2.0.1
+130 verbose installOne of extend to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment not in flight; installing
+131 verbose lock using /Users/Tom/.npm/_locks/extend-7570ddb17ecb64a0.lock for /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+132 silly install write writing extend 2.0.1 to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+133 verbose unbuild node_modules/mongoose-auto-increment/node_modules/extend
+134 silly gentlyRm /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend is being purged from base /Users/Tom/Documents/development/web/WebRTCProject
+135 verbose gentlyRm don't care about contents; nuking /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+136 verbose tar unpack /Users/Tom/.npm/extend/2.0.1/package.tgz
+137 verbose tar unpacking to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+138 silly gentlyRm /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend is being purged
+139 verbose gentlyRm don't care about contents; nuking /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+140 silly gunzTarPerm modes [ '755', '644' ]
+141 silly gunzTarPerm extractEntry package.json
+142 silly gunzTarPerm extractEntry .npmignore
+143 silly gunzTarPerm extractEntry README.md
+144 silly gunzTarPerm extractEntry LICENSE
+145 silly gunzTarPerm extractEntry index.js
+146 silly gunzTarPerm extractEntry .jscs.json
+147 silly gunzTarPerm extractEntry component.json
+148 silly gunzTarPerm extractEntry .travis.yml
+149 silly gunzTarPerm extractEntry CHANGELOG.md
+150 verbose write writing to /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend/package.json
+151 info preinstall extend@2.0.1
+152 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend/package.json
+153 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend/package.json
+154 silly install resolved []
+155 verbose about to build /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+156 info build /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+157 info linkStuff extend@2.0.1
+158 silly linkStuff extend@2.0.1 has /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules as its parent node_modules
+159 verbose linkBins extend@2.0.1
+160 verbose linkMans extend@2.0.1
+161 verbose rebuildBundles extend@2.0.1
+162 info install extend@2.0.1
+163 info postinstall extend@2.0.1
+164 verbose unlock done using /Users/Tom/.npm/_locks/extend-7570ddb17ecb64a0.lock for /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/node_modules/extend
+165 verbose about to build /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+166 info build /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+167 info linkStuff mongoose-auto-increment@4.0.0
+168 silly linkStuff mongoose-auto-increment@4.0.0 has /Users/Tom/Documents/development/web/WebRTCProject/node_modules as its parent node_modules
+169 verbose linkBins mongoose-auto-increment@4.0.0
+170 verbose linkMans mongoose-auto-increment@4.0.0
+171 verbose rebuildBundles mongoose-auto-increment@4.0.0
+172 verbose rebuildBundles [ 'extend' ]
+173 info install mongoose-auto-increment@4.0.0
+174 info postinstall mongoose-auto-increment@4.0.0
+175 verbose readDependencies loading dependencies from /Users/Tom/Documents/development/web/WebRTCProject/package.json
+176 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/body-parser/package.json
+177 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/ect/package.json
+178 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/express/package.json
+179 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose/package.json
+180 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment/package.json
+181 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/passport/package.json
+182 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/passport-local/package.json
+183 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/socket.io/package.json
+184 verbose targetResolver reading package data from /Users/Tom/Documents/development/web/WebRTCProject/node_modules/.bin/ect/package.json
+185 verbose already installed skipping mongoose@~4.0.0 /Users/Tom/Documents/development/web/WebRTCProject
+186 silly install resolved []
+187 verbose unlock done using /Users/Tom/.npm/_locks/mongoose-auto-increment-b64f0ea525037cba.lock for /Users/Tom/Documents/development/web/WebRTCProject/node_modules/mongoose-auto-increment
+188 verbose validateInstall loading /Users/Tom/Documents/development/web/WebRTCProject/package.json for validation
+189 verbose stack Error: The package mongoose does not satisfy its siblings' peerDependencies requirements!
+189 verbose stack     at /usr/local/lib/node_modules/npm/lib/install.js:125:32
+189 verbose stack     at /usr/local/lib/node_modules/npm/lib/install.js:267:7
+189 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-installed/read-installed.js:138:5
+189 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-installed/read-installed.js:251:14
+189 verbose stack     at cb (/usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:47:24)
+189 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-installed/read-installed.js:251:14
+189 verbose stack     at cb (/usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:47:24)
+189 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-installed/read-installed.js:251:14
+189 verbose stack     at cb (/usr/local/lib/node_modules/npm/node_modules/slide/lib/async-map.js:47:24)
+189 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-installed/read-installed.js:251:14
+190 verbose cwd /Users/Tom/Documents/development/web/WebRTCProject
+191 error Darwin 14.4.0
+192 error argv "node" "/usr/local/bin/npm" "install" "mongoose-auto-increment"
+193 error node v0.12.7
+194 error npm  v2.11.3
+195 error code EPEERINVALID
+196 error peerinvalid The package mongoose does not satisfy its siblings' peerDependencies requirements!
+196 error peerinvalid Peer mongoose-auto-increment@4.0.0 wants mongoose@~4.0.0
+197 verbose exit [ 1, true ]

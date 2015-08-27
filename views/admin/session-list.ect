@@ -1,0 +1,11 @@
+<% extend 'admin/layout' %>
+<a class="button" href="/admin/add_session" style="float: right">Start New Session</a>
+<h1>Sessions</h1>
+<ul id="session-list" class="list">
+    <p class="info <% if @sessions && @sessions.length > 0 : %>hidden<%end%>">There are no active sessions</p>
+    <% if @sessions : %>
+        <% for session in @sessions : %>
+                <% include 'admin/partials/session-list-item', { 'session': session } %>
+        <% end %>
+    <% end %>
+</ul>

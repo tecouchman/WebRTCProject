@@ -1,83 +1,143 @@
 var express = require('express');
 var app = express();
-var http =  require('http').Server(app);
-var io = require('socket.io')(http);
-var url = require('url');
+var http = require('http').Server(app);
+var bodyParser = require( 'body-parser' );
+var passport = require('passport');
+var passportLocal = require('passport-local');
+
+app.set('root', __dirname);
+
+var AuthStrategy = passportLocal.Strategy;
 
 // The port the app will listen to
-var port = 3000,
-    // Map of clients
-    clients = {};
+var port = 3000;
 
 // Set up access to static files
 app.use('/styles', express.static('Styles'));
 app.use('/js', express.static('JS'));
 app.use('/socket.io', express.static('socket.io'));
+app.use('/examples', express.static('examples'));
+app.use('/images', express.static('images'));
 
 
-// Set up routing for get requests made to the base URL.
-// Sends index.html to the client.
-app.get('/room/[a-zA-Z]{6,9}', function(req, res) {
-    res.sendFile(__dirname + '/index.html'); 
+app.use(passport.initialize());
+//app.use(passport.session);
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+
+// 
+var db = require('./database');
+
+var controllers = require('./controllers');
+controllers.set(app, passport, db);
+
+
+var signallingServer = require('./signalling');
+signallingServer.set(http, db);
+
+passport.serializeUser(function(user, done) {
+    console.log('serialize');
+  done(null, user);
 });
 
-// Set up a listener for when a client connects (a user visits the page)
-io.on('connection', function(socket) {
-    
-    // Store the socket in a the clients map.
-    clients[socket.id] = socket;
-    
-    // TODO: socket.request.headers.referer is undocumented, maybe unreliable
-    // Get the URL of the page to determined the users room
-    var URL = url.parse(socket.request.headers.referer);
-    // The room ID is the final part of the path, so remove
-    // the start.
-    var room = URL.path.replace('/room/','')
-        
-    console.log('Adding user to room: ' + room);
-    
-    // Add the socket to the room
-    // (A socket.io room is a conceptual group of sockets
-    // to which messages can be broadcasted)
-    socket.join(room);
-    
-    // Return an ID to the the new client
-    socket.emit('IdGenerated', socket.id);
-
-    socket.on('Offer', function(data){
-        console.log('Offer recieved for :' + data.peerId);
-        clients[data.peerId].emit('Offer', { peerId: socket.id, offer: data.offer});
-    });
-    
-    socket.on('Answer', function(data){
-        console.log('Answer recieved for :' + data.peerId);
-        clients[data.peerId].emit('Answer', { peerId: socket.id, answer: data.answer});
-    })
-    
-    socket.on('IceCandidate', function(data){
-        clients[data.peerId].emit('IceCandidate', { peerId: socket.id, iceCandidate: data.iceCandidate});
-    })
-    
-    
-    // When the socket disconnects
-    socket.on('disconnect', function() {
-        console.log('Client ' + socket.id + ' has disconnected');
-        
-        // Tell others that the client has disconnected
-        socket.broadcast.to(room).emit('PeerRemoved', socket.id);
-        
-        // Remote the socket from the client list
-        delete clients[socket.id];
-    });
-    
-    // Tell other users that the client has been added to the room
-    socket.broadcast.to(room).emit('PeerAdded', socket.id);
-    
+passport.deserializeUser(function(user, done) {
+    console.log('deserialize');
+  done(null, user);
 });
 
+passport.use(new AuthStrategy(
+    function(username, password, done) {
 
+        db.User.findOne({
+          'username': username
+        }, function(err, user) {
 
+          if (err) {
+            return done(err);
+          }
+
+          if (!user) {
+            return done(null, false);
+          }
+
+          if (user.password != password) {
+            return done(null, false);
+          }
+
+          return done(null, user);
+        });
+        
+    }
+));
 
 http.listen(port, function(){
-  console.log('Listening on port ' + port);
+    console.log('Listening on port ' + port);
 });
+
+/* var options = {
+    name: 'something',
+    roomName: '',
+    roomId: '',
+    url: '',
+    password: ''
+    Embedable: ''
+}
+
+var callback = function(session, err){}
+*/
+
+module.exports.createSession = function(options, callback) {
+    
+    var dbCallback = function(err, room) {
+            if (room) {
+                addSession(options.name, options.url, room.roomId, options.embeddable, options.password);
+            } else if (err) {
+                callback(null, err.message);
+            } else {
+                callback(null, "Room not found");   
+            }
+    };
+    
+    // Find the room either by id or name depending on the user input
+    if (options.roomId) {
+        db.Room.findOne({ roomId : options.roomId }, dbCallback);
+    } else {
+        db.Room.findOne({ name : options.roomName }, dbCallback);                 
+    }
+}
+
+// Method to add a session
+function addSession(name, url, roomId, embeddable, password) {
+            
+    var hasPassword = password != null && password != '';
+            
+    var newSession = new db.Session({
+        name: name,
+        url: url,
+        embeddable: embeddable,
+        roomId: roomId,
+        passwordProtected : hasPassword
+    });
+    newSession.save(function(err, session, numberAffected) {
+        if (hasPassword) {
+            addCredentials(session.sessionId, req.body.password ,function(err, credentials, numberAffected) {
+                callback(session, null);
+            });
+        }
+    });
+}
+        
+// Method to store the credentials of a session
+function addCredentials(sessionId, password, callback) {
+    var newPassword = new db.SessionCredentials({
+        sessionId: sessionId,
+        password: password
+    });
+    newPassword.save(callback);
+}
+
+
+
+
+

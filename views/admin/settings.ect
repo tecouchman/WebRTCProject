@@ -1,0 +1,26 @@
+<% extend 'admin/layout' %>
+<h1>Settings</h1>
+
+<h2>TURN Servers</h2>
+<ul id="turn-server-list" class="list">
+    <p class="info <% if @turnServers && @turnServers.length > 0 : %>hidden<%end%>">No TURN servers have been saved</p>
+    <% if @turnServers && @turnServers.length > 0 : %>
+            <% for iceServer in @turnServers : %>
+                <% include 'admin/partials/ice-server-list-item', { 'iceServer': iceServer } %>
+            <% end %>
+    <% end %>
+</ul>
+<input id="rtc-add-turn-url" class="inline-input" type="text" name="name" />
+<button id='rtc-add-turn-button' type="submit">Add</button>
+    
+<h2>STUN Servers</h2>
+<ul id="stun-server-list" class="list">
+    <p class="info <% if @stunServers && @stunServers.length > 0 : %>hidden<%end%>">No STUN servers have been saved</p>
+    <% if @stunServers && @stunServers.length > 0 : %>
+            <% for iceServer in @stunServers : %>
+                <% include 'admin/partials/ice-server-list-item', { 'iceServer': iceServer } %>
+            <% end %>
+    <% end %>
+</ul>
+<input id="rtc-add-stun-url" class="inline-input" type="text" name="name" />
+<button id='rtc-add-stun-button' type="submit">Add</button>

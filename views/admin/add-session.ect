@@ -1,0 +1,37 @@
+<% extend 'admin/layout' %>
+<h1>Add Session</h1>
+<form action="/admin/add_session" method="post">
+    <fieldset>
+        <label>Session Name</label>
+        <input id="rtc-add-session-name" type="text" name="name" />
+    </fieldset>
+    <fieldset>
+        <label>Session URL</label>
+        <input id="rtc-add-session-url" type="text" name="url" />
+    </fieldset>
+    <fieldset>
+        <label>Password Protected</label>
+        <input id="rtc-add-session-password-protected" type="checkbox" name="passwordProtected" />
+        <label for="rtc-add-session-password-protected"></label>
+    </fieldset>
+    <div id="rtc-add-session-password-section" class="info hidden">
+        <fieldset>
+            <label>Password</label>
+            <input id="rtc-add-session-url" type="password" name="password" />
+        </fieldset>
+    </div>
+    <fieldset>
+        <label>Embedable</label>
+        <input id="rtc-add-session-embeddable" type="checkbox" name="embeddable" />
+        <label for="rtc-add-session-embeddable"></label>
+    </fieldset>
+    <fieldset>
+        <label>Room</label>
+        <select id="rtc-add-session-room" name="roomId">
+            <% for room in @rooms : %>
+                <option value="<%= room.roomId %>"><%= room.name %></%></option>
+            <% end %>
+        </select>
+    </fieldset>
+    <button id='rtc-add-session-button' type="submit">Create Session</button>
+</form>

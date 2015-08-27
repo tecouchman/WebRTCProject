@@ -1,0 +1,86 @@
+<% extend 'admin/layout' %>
+<h1>Add a New Room</h1>
+<form action="/admin/add_room" method="post">
+    <fieldset>
+        <label>Room Name</label>
+        <input id="rtc-add-room-name" type="text" name="name" />
+    </fieldset>
+    <fieldset>
+        <label>Max Users</label>
+        <p>Set to 0 for unlimited.</p>
+        <input id="rtc-add-room-max-users" type="number" name="maxUsers" value="5" />
+    </fieldset>
+    <h2>Broadcast Media</h2>
+    <p class="info">For one-to-many presentations. When one user is the focus of room, e.g. a lecturer teaching a lessons, then set presentation to true.</p>
+    <fieldset>
+        <label>Presentation</label>
+        <input id="rtc-add-room-presentation" type="checkbox" name="isPresentation" />
+        <label for="rtc-add-room-presentation"></label>
+    </fieldset>
+    <div class="info">
+        <fieldset>
+            <label>Video</label>
+            <input id="rtc-add-room-broadcast-video" type="checkbox" name="hasBroadcastVideo" />
+            <label for="rtc-add-room-broadcast-video"></label>
+        </fieldset>
+        <fieldset>
+            <label>Audio</label>
+            <input id="rtc-add-room-broadcast-audio" type="checkbox" name="hasBroadcastAudio" />
+            <label for="rtc-add-room-broadcast-audio"></label>
+        </fieldset>
+    </div>
+    <h2>Client Media</h2>
+    <p class="info">Setting for visitors to the rooms</p>
+    <fieldset>
+        <label>Video</label>
+        <input id="rtc-add-room-video" type="checkbox" name="hasVideo" />
+        <label for="rtc-add-room-video"></label>
+    </fieldset>
+    <fieldset>
+        <label>Audio</label>
+        <input id="rtc-add-room-audio" type="checkbox" name="hasAudio" />
+        <label for="rtc-add-room-audio"></label>
+    </fieldset>
+    <fieldset>
+        <label>Messaging</label>
+        <input id="rtc-add-room-messaging" type="checkbox" name="hasMessaging" />
+        <label for="rtc-add-room-messaging"></label>
+    </fieldset>
+    <fieldset>
+        <label>File Sharing</label>
+        <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" />
+        <label for="rtc-add-room-filesharing"></label>
+    </fieldset>
+    <fieldset>
+        <label>Custom Usernames</label>
+        <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" />
+        <label for="rtc-add-room-custom-ids"></label>
+    </fieldset>
+    <fieldset>
+        <label>Theme</label>
+        <select id="rtc-add-room-theme" name="theme">
+            <option value="default">Default</option>
+        </select>
+    </fieldset>
+    <fieldset>
+        <label>Record Audio</label>
+        <input id="rtc-add-room-record-audio" type="checkbox" name="recordAudio" />
+        <label for="rtc-add-room-record-audio"></label>
+    </fieldset>
+    <fieldset>
+        <label>Record Video</label>
+        <input id="rtc-add-room-record-video" type="checkbox" name="recordVideo" />
+        <label for="rtc-add-room-record-video"></label>
+    </fieldset>
+    <fieldset>
+        <label>Log Messages</label>
+        <input id="rtc-add-room-log-messages" type="checkbox" name="logMessages" />
+        <label for="rtc-add-room-log-messages"></label>
+    </fieldset>
+    <fieldset>
+        <label>Fullscreen</label>
+        <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" />
+        <label for="rtc-add-room-fullscreen"></label>
+    </fieldset>
+    <button id='rtc-add-room-button' type="submit">Add Room</button>
+</form>

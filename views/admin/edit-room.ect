@@ -1,0 +1,65 @@
+<% extend 'admin/layout' %>
+<h1>Edit Room</h1>
+<form action="/admin/edit_room/<%= @room.roomId %>" method="post">
+    <fieldset>
+        <label>Room Name</label>
+        <input id="rtc-add-room-name" type="text" name="name" value="<%= @room.name %>" />
+    </fieldset>
+    <fieldset>
+        <label>Max Users</label>
+        <p>Set to 0 for unlimited.</p>
+        <input id="rtc-add-room-max-users" type="number" name="maxUsers" value="<%= @room.maxUsers %>" />
+    </fieldset>
+    <fieldset>
+        <label>Video</label>
+        <input id="rtc-add-room-video" type="checkbox" name="hasVideo" <% if @room.hasVideo : %>checked<%end%> />
+        <label for="rtc-add-room-video"></label>
+    </fieldset>
+    <fieldset>
+        <label>Audio</label>
+        <input id="rtc-add-room-audio" type="checkbox" name="hasAudio" <% if @room.hasAudio : %>checked<%end%> />
+        <label for="rtc-add-room-audio"></label>
+    </fieldset>
+    <fieldset>
+        <label>Messaging</label>
+        <input id="rtc-add-room-messaging" type="checkbox" name="hasMessaging" <% if @room.hasMessaging : %>checked<%end%> />
+        <label for="rtc-add-room-messaging"></label>
+    </fieldset>
+    <fieldset>
+        <label>File Sharing</label>
+        <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" <% if @room.hasFilesharing : %>checked<%end%> />
+        <label for="rtc-add-room-filesharing"></label>
+    </fieldset>
+    <fieldset>
+        <label>Custom Usernames</label>
+        <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" <% if @room.hasCustomUserIds : %>checked<%end%> />
+        <label for="rtc-add-room-custom-ids"></label>
+    </fieldset>
+    <fieldset>
+        <label>Theme</label>
+        <select id="rtc-add-room-theme" name="theme">
+            <option value="default">Default</option>
+        </select>
+    </fieldset>
+    <fieldset>
+        <label>Record Audio</label>
+        <input id="rtc-add-room-record-audio" type="checkbox" name="recordAudio"  <% if @room.recordAudio : %>checked<%end%> />
+        <label for="rtc-add-room-record-audio"></label>
+    </fieldset>
+    <fieldset>
+        <label>Record Video</label>
+        <input id="rtc-add-room-record-video" type="checkbox" name="recordVideo" <% if @room.recordVideo : %>checked<%end%>  />
+        <label for="rtc-add-room-record-video"></label>
+    </fieldset>
+    <fieldset>
+        <label>Log Messages</label>
+        <input id="rtc-add-room-log-messages" type="checkbox" name="logMessages" <% if @room.logMessages : %>checked<%end%> />
+        <label for="rtc-add-room-log-messages"></label>
+    </fieldset>
+    <fieldset>
+        <label>Fullscreen</label>
+        <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" <% if @room.fullscreenEnabled : %>checked<%end%> />
+        <label for="rtc-add-room-fullscreen"></label>
+    </fieldset>
+    <button id='rtc-add-room-button' type="submit">Save Changes</button>
+</form>

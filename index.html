@@ -2,16 +2,51 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"/>
+        <meta name="viewport" content="initial-scale=1">
+        <link rel="stylesheet" href="/Styles/default.css" />
+        <link rel="stylesheet" href="/Styles/mobile.css" />
     </head>
     <body>
-        <div id="MyWebRTC-container">
-
-            <button id="fullscreen-button">Enter Fullscreen</button>
+        <div id="rtc-container">
+            <div id="rtc-video-container">
+            </div>
+            <div id="rtc-messages-container">
+                <div id="rtc-messages"></div>
+                <form id="rtc-input-form">
+                    <input id="rtc-input-message" type="text" disabled />
+                    <input id="rtc-input-file" type="file" />
+                    <button type="submit" id="rtc-send" disabled>Send</button>
+                </form>
+            </div>
+            <button id="rtc-btn-fullscreen">Enter Fullscreen</button>
+            <button id="rtc-btn-popout">Open in popup</button>
+            <div id="rtc-password-container" class="rtc-popup-container hidden">
+                <h1>This room is password protected</h1>
+                <p>Please enter the password:</p>
+                <form id="rtc-password-form">
+                    <span id="rtc-password-incorrect-label" class="hidden">Password incorrect. Please try again</span>
+                    <input id="rtc-password-input" type="password" />
+                    <button type="submit" id="rtc-password-submit">Join</button>
+                </form>
+            </div>
+            <div id="rtc-username-container" class="rtc-popup-container hidden">
+                <h1>Set your username</h1>
+                <form id="rtc-password-form">
+                    <span id="rtc-password-incorrect-label" class="hidden">Password incorrect. Please try again</span>
+                    <input id="rtc-password-input" type="password" />
+                    <button type="submit" id="rtc-password-submit">Join</button>
+                </form>
+            </div>
         </div>
-
-        <script src="JS/MyWebRTC.js"></script>
-        <script>
-            x = 3.14;
-        </script>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/JS/jquery.min.js"></script>
+        <script src="/JS/ect.min.js"></script>
+        <script src="/JS/MyWebRTC.js"></script>
+        <script src="/JS/MyWebRTC-UI.js"></script>
+        <script src="/JS/MyWebRTC-Com.js"></script>
+        <script src="/JS/MyWebRTC-File.js"></script>
+        <script src="/JS/Client.js"></script>
+        
     </body>
 </html>

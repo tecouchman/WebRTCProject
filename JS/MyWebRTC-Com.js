@@ -5,20 +5,40 @@
 // TODO: look at the engines used in voxel.js - how is one selected?
 MyWebRTC.Com = (function (MyWebRTC) {
     'use strict';
-    
-    var iceCandidates = [];
-    var responseSent = false;
-    var responseReceieved = false;
+
     var com;
     
     // Set up socket.io, to create a socket through to
     // the server.
-    var socket; 
+    var socket, options; 
+
+    var init = function(opts) {
+        
+        options = opts;
+        
+        // If message loggin is on then listen for the message sent
+        // event, to pass messages on to the server.
+        if (options.logMessages) {
+            // Listen for messageSent events
+            $(MyWebRTC).on("MessageSent", function(evt, message){
+                socket.emit('MessageSent', { username: 'Some username', message: message });
+            });   
+        }
+        
+        
+    }
     
-    $(MyWebRTC).on("GetLocalStream", function (stream) {
+    $(MyWebRTC).on("ReadyForCommunication", function () {
 
         socket = window.io();
 
+        // When the server has generated a peerID
+        socket.on('IdGenerated', function(localPeerId){
+            console.log('My Id:' + localPeerId);
+            // Store it in the MyWebRTC object.
+            MyWebRTC.setLocalPeerId(localPeerId);
+        })
+        
         // When a client is added to the room
         socket.on('PeerAdded', function(clientId){
             // Write log in console
@@ -36,38 +56,35 @@ MyWebRTC.Com = (function (MyWebRTC) {
             MyWebRTC.removePeer(clientId);
         })
 
-        // When the server has generated a peerID
-        socket.on('IdGenerated', function(localPeerId){
-            console.log('My Id:' + localPeerId);
-            // Store it in the MyWebRTC object.
-            MyWebRTC.localPeerId = localPeerId;
-        })
-
         socket.on('Offer', function(data) {
             console.log('Offer recieved via socket. Offer: ' + data.offer); 
-            MyWebRTC.addOffer(data.peerId, new SessionDescription(data.offer));
+            MyWebRTC.addOffer(data.peerId, data.peerType, new MyWebRTC.SessionDescription(data.offer));
         });
 
         socket.on('Answer', function(data) {
             console.log('Answer recieved via socket. Answer: ' + data.answer); 
-            MyWebRTC.addAnswer(data.peerId, new SessionDescription(data.answer));
-            
-                    
-        
-            responseReceieved = true;
-            for (var candidate in iceCandidates) {
-                MyWebRTC.addRemoteIceCandidate(candidate.peerId, new RTCIceCandidate(candidate.iceCandidate));
-            }
+            MyWebRTC.addAnswer(data.peerId, data.peerType, new MyWebRTC.SessionDescription(data.answer));
         });
 
         socket.on('IceCandidate', function(data) {
-            if (!responseSent && !responseReceieved) {
-                iceCandidates.push({ peerId: data.peerId, iceCandidate: data.iceCandidate });
-            } else {
-                // Send the IceCandidate to the server so it can be passed to the remote peer
-                MyWebRTC.addRemoteIceCandidate(data.peerId, new IceCandidate(data.iceCandidate));
-            }
+
+            // Send the IceCandidate to the server so it can be passed to the remote peer
+            MyWebRTC.addRemoteIceCandidate(data.peerId, new MyWebRTC.IceCandidate(data.iceCandidate));
+
         });
+        
+        socket.on("PasswordCorrect", function (evt) {
+            console.log('password correct');
+            $(MyWebRTC).trigger("PasswordCorrect");
+        });
+
+        socket.on("PasswordIncorrect", function (evt) {
+            console.log('password incorrect');
+            $(MyWebRTC).trigger("PasswordIncorrect");
+        });
+        
+        // Request an Id so the user can join the chat
+        socket.emit('Join');
         
     });
     
@@ -79,10 +96,9 @@ MyWebRTC.Com = (function (MyWebRTC) {
     });
     
     $(MyWebRTC).on("CreateOffer", function (evt, remotePeerId, offer) {
-        // TODO: Send offer to remote peer
         console.log('Offer sent: ' + offer);
         
-        socket.emit('Offer', { peerId: remotePeerId, offer: offer });
+        socket.emit('Offer', { peerId: remotePeerId, peerType: 'presenter', offer: offer });
     });
     
     
@@ -90,18 +106,23 @@ MyWebRTC.Com = (function (MyWebRTC) {
         // TODO: Send offer to remote peer
         console.log('Answer sent');
         
-        socket.emit('Answer', { peerId: remotePeerId, answer: answer });
-        
-        responseSent = true;
-        for (var candidate in iceCandidates) {
-            MyWebRTC.addRemoteIceCandidate(candidate.peerId, new IceCandidate(candidate.iceCandidate));
-        }
+        socket.emit('Answer', { peerId: remotePeerId, peerType: 'client' ,answer: answer });
         
     });
+    
+    var submitPassword = function(password) {
+        console.log('Password submitted: ' + password);
+        socket.emit('SubmitPassword', { password : password });
+    }
+    
+    
+
+
 
     // Public methods/fields
     com = {
-        
+        'init' : init,
+        'submitPassword' : submitPassword
     };
     
     return com;

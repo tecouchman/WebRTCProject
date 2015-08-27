@@ -1,0 +1,7 @@
+<li id="room<%= @room.roomId %>">
+    <a href="/admin/edit_room/<%= @room.roomId %>">
+        <span><%= @room.name %></span>
+    </a>
+    <button class="delete-button button-red button-small" data-id="<%= @room.roomId %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
+        <a class="button button-small" href="/admin/edit_room/<%= @room.roomId %>" style="float: right"><img src="/images/icons/edit-white.png"></a>
+</li>

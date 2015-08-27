@@ -1,0 +1,17 @@
+<% extend 'admin/layout' %>
+<h1>Logs</h1>
+
+<h2>Message Logs</h2>
+<ul id="session-list" class="list">
+    <p class="info <% if @sessions && @sessions.length > 0 : %>hidden<%end%>">No logs are available</p>
+    <% if @sessions && @sessions.length > 0 : %>
+            <% for session in @sessions : %>
+                <li id="session<%= session.sessionId %>">
+                    <a href="/admin/logs/<%= session.sessionId %>">
+                        <span><%= session.name %></span>
+                    </a>
+                        <a class="button button-small text-button" href="/admin/logs/<%= session.sessionId %>" style="float: right">View</a>
+                </li>
+            <% end %>
+    <% end %>
+</ul>

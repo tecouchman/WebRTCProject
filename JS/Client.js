@@ -1,15 +1,26 @@
 $(document).ready(function() {
     
-    var RTCOption = {
-        'shareLocalVideo' : true,
-        'shareLocalAudio' : true,
-        'remoteVideo' : true,
-        'iceServers' : ["stun:stun.l.google.com:19302",
-                        "stun:stun1.l.google.com:19302",
-                        "stun:stun2.l.google.com:19302"]
-    }
+    socket = window.io();
 
+    // Request the options from the server
+    socket.emit('GetOptions');
     
-    MyWebRTC.init(RTCOption);
+    socket.on("RoomFull", function (evt) {
+            console.log('RoomFull');
+            $(MyWebRTC).trigger("RoomFull");
+    });
+    
+    // When the options are recieved frmo the server, the chat can be initialised.
+    socket.on('GotOptions', function(RTCOptions, RTCComOptions, RTCUIOptions){ 
+        
+        console.log('Initialising libraries');
+        
+        // Init the libraries with the options
+        MyWebRTC.UI.init(RTCUIOptions);
+        MyWebRTC.Com.init(RTCComOptions);
+        MyWebRTC.init(RTCOptions);
+        
+    });
+
 });
 

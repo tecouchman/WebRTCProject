@@ -1,0 +1,7 @@
+<div id="<%= @id %>" class="rtc-popup-container">
+    <h1><%= @title %></h1>
+    <p><%= @message %></p>
+    <% if @buttons == 'ok' : %>
+        <button id="rtc-popup-ok" onclick="$('#<%= @id %>').remove();">OK</button>
+    <% end %>
+</div>

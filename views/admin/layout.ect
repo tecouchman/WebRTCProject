@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/Styles/admin/styles.css" />
+        <title>MyWebRTC Dashboard</title>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="user button">Admin&nbsp ▾</div>
+                <a href="/admin/settings" class="menu-item">Settings</a>
+                <a href="/admin/logs" class="menu-item">Logs</a>
+                <a href="/admin/themes" class="menu-item">Themes</a>
+                <a href="/admin/sessions" class="menu-item">Sessions</a>
+                <a href="/admin/rooms" class="menu-item">Rooms</a>
+                <h1>MyWebRTC Dashboard</h1>
+            </div>
+        </header>
+        <div class="container">
+            <% content %>
+        </div>
+
+            
+        <footer>
+            <div class="container">
+            </div>
+        </footer>
+        <% if @scripts : %>
+            <% for script in @scripts : %>
+                <% include 'partials/script', { 'script': script } %>
+            <% end %>
+        <% end %>
+    </body>
+</html>

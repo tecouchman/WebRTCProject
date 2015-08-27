@@ -1,0 +1,49 @@
+<% extend 'admin/layout' %>
+<h1>Edit Session</h1>
+<form action="/admin/edit_session/<%= @session.sessionId %>" method="post">
+    <fieldset>
+        <label>Session Name</label>
+        <input id="rtc-add-session-name" type="text" name="name" value="<%= @session.name %>" />
+    </fieldset>
+    <fieldset>
+        <label>Room</label>
+        <select id="rtc-add-session-room" name="roomId">
+            <% for room in @rooms : %>
+                <option data-room="<%- room %>" value="<%= room.roomId %>" <% if @session.roomId == room.roomId : %>selected<%end%>><%= room.name %></%></option>
+            <% end %>
+        </select>
+    </fieldset>
+    <fieldset>
+        <label>Session URL</label>
+        <input id="rtc-add-session-url" type="text" name="url" value="<%= @session.url %>" />
+    </fieldset>
+    <fieldset>
+        <label>Password Protected</label>
+        <input id="rtc-add-session-password-protected" type="checkbox" name="passwordProtected" <% if @session.passwordProtected : %>checked<%end%> />
+        <label for="rtc-add-session-password-protected"></label>
+    </fieldset>
+    <div id="rtc-add-session-password-section" class="info <% if !@session.passwordProtected : %>hidden<%end%>">
+        <fieldset>
+            <label>Password</label>
+            <input id="rtc-add-session-password" type="password" name="password" value="<% if @session.passwordProtected : %>         <%end%>"/>
+        </fieldset>
+    </div>
+    <fieldset>
+        <label>Embedable</label>
+        <input id="rtc-add-session-embeddable" type="checkbox" name="embeddable"  <% if @session.embeddable : %>checked<%end%>/>
+        <label for="rtc-add-session-embeddable"></label>
+    </fieldset>
+        
+    <div id="rtc-add-session-embed-section" class="info <% if !@session.embeddable : %>hidden<%end%>">
+        <h2>Standalone page:</h2>
+        <input id="rtc-full-url" type="text" />
+
+        <h2>Embed:</h2>
+        <textarea id="rtc-embed-code" rows="3"></textarea>
+    </div>
+    <button id='rtc-add-session-button' type="submit">Save Changes</button>
+</form>
+<script>
+    var baseURL = '<%= @baseURL %>';
+    var rooms = [ <% for room in @rooms : %> <%= room.hasCustomUserIds + ',' %> <% end %>]
+</script>
