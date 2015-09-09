@@ -42,15 +42,11 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
             
         }else { // Else the data is a file:
             
-            // If filesharing is disabled then ignore any recieved file data
-            if (options.fileSharing) {
-                // Else hand them to the down load manager
-                downloadManager.updateDownload(receivedData.data);
-            }
+            console.log(receivedData.type);
+            $(localPeer).trigger("ChunkRecieved", [ receivedData.data ]);
+
         }
     }
-        
-        
         
     localPeer.peerConnection.ondatachannel = function(e) {
 
@@ -75,9 +71,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
             createDataChannel();
         };
         
-    };
-
-        
+    };  
     
     // Method to setup a data channel
     var createDataChannel = function() {
@@ -102,10 +96,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
             $(localPeer).trigger("DataChannelClosed");
         };
         
-   
-
         localPeer.peerConnection.sendDataChannel = sendDataChannel;
-    
     };
     
     
@@ -166,19 +157,13 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
     }
 
 
-    
+    // Method by which answers can be passed to the peer connection
     this.addAnswer = function(answer, callback) {
-
         localPeer.peerConnection.setRemoteDescription(answer, function() {}, function(err) {}); 
-
-
-        
     }
     
-    
-    
+    // Method to create an offer
     this.createOffer = function(callback) {
-        
         this.peerConnection.createOffer(function(offer){
 
             localPeer.peerConnection.setLocalDescription(offer);
@@ -189,10 +174,12 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         
     }
 
+    // Method by which ice candidates from remote peers can be added
     this.addIceCandidate = function(iceCandidate) {
         localPeer.peerConnection.addIceCandidate(iceCandidate);
     }
     
+    // Method to send a message to a remove peer
     this.sendMessage = function(message) {
         // If their send data channel is open:
         if (localPeer.peerConnection.sendDataChannel.readyState === 'open') {
@@ -204,6 +191,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         }
     }
     
+    // Send data
     this.send = function(data) {
         // If their send data channel is open:
         if (localPeer.peerConnection.sendDataChannel.readyState === 'open') {
@@ -217,29 +205,37 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         this.displayName = displayName;   
     }
 
+    // Method to stop the video stream
     this.stopVideo = function() { 
         if (this.stream && this.stream.getVideoTracks()[0]) {
             this.stream.getVideoTracks()[0].enabled = false; 
         }
     };
+    
+    // Method to start the video stream
     this.startVideo = function() { 
         if (this.stream && this.stream.getVideoTracks()[0]) {
             this.stream.getVideoTracks()[0].enabled = true; 
         }
     };
+    
+    // Method to stop the audio stream
     this.stopAudio = function() { 
         if (this.stream && this.stream.getAudioTracks()[0]) {
             this.stream.getAudioTracks()[0].enabled = false; 
         }
     };
+    
+    // Method to start the audio stream
     this.startAudio = function() { 
         if (this.stream && this.stream.getAudioTracks()[0]) {
             this.stream.getAudioTracks()[0].enabled = true; 
         }
     };
     
+    // Close this connection
     this.close = function() {
-        this.stream.stop();
+        //this.stream.stop();
         this.peerConnection.close();
     }
 

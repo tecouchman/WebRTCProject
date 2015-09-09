@@ -200,6 +200,13 @@
             $(connection).on('MessageReceived', onMessageReceived);
             $(connection).on('FileOffer', onFileOffer);
             $(connection).on('FileAccept', onFileAccept);
+            $(connection).on('ChunkRecieved', function(evt, data) {
+                console.log(data);
+                // Else hand them to the down load manager
+                downloadManager.updateDownload(data);
+
+            });
+            
         }
     }
     
@@ -225,8 +232,9 @@
     }
      
     // handler for when a Connection recieves a message
-    var onFileAccept = function(evnt, name) {
-        $(MyWebRTC).trigger("FileAccept", [ event.target.id, receivedData.name ]);
+    var onFileAccept = function(event, name) {
+        //$(MyWebRTC).trigger("FileAccept", [ event.target.id, receivedData.name ]);
+        fileOfferAccepted(event.target.id, name);
     }
     
     var onDataChannelOpen = function() {
@@ -273,16 +281,20 @@
     
     var acceptFile = function(name) {
         var sender = fileOffers[name].sender;
-        peers[sender].send({ type : "fileAccept", })
+
+        peers[sender].send({ type : "fileAccept", data: {name : name } })
     }
         
-    var fileOfferAccepted = function() {
+    var fileOfferAccepted = function(target, name) {
+
         if (fileOffers[name]) {
+            
+            var file = fileOffers[name].file;
             // Use the file submodile to read the file as a data URL, then
             // Send the file once the onLoad callback is called.
             MyWebRTC.File.readFileAsDataURL(file, function(event){
                 // Send the file using the send file string method
-                sendFileString(event.target.result, file.name, event.target.result.length);
+                sendFileString(target, event.target.result, file.name, event.target.result.length);
             });
         }
     }
@@ -347,6 +359,12 @@
             if (file == null)
                 return;
             
+            fileOffers[file.name] = {
+                sender: 'local',
+                name: file.name,
+                size: file.size,
+                file: file
+            };
             offerFile(file);
         }
 
@@ -369,7 +387,7 @@
     }
     
     // Send a file that has been encoded as a string
-    var sendFileString = function(text, id, size) {
+    var sendFileString = function(recipient, text, id, size) {
             var chunkLength = 1000;
             var data = {};
         
@@ -390,11 +408,14 @@
                 data.last = true;
             }
 
-            // Loop through each of the peers
+            console.log('sending chunk of ' + id + ' to ' + recipient);
+            peers[recipient].send({ type : "file", data : data });
+        
+            /*// Loop through each of the peers
             $.map('peers',function(peer, key) {
                 // Send the data to the peer connection, with the type 'message'
                 peer.send(JSON.stringify({ type : "file", data : data }));
-            });
+            });*/
             
            /* // Loop through each of the peers
            $.map(peers, function(obj, key) {
@@ -411,7 +432,7 @@
             // If there is still some to send, recall this method.
             if (remainingDataURL.length) {
                 setTimeout(function() {
-                    sendFileString(remainingDataURL, id, size);
+                    sendFileString(recipient, remainingDataURL, id, size);
                 }, 500);
             }
     }
@@ -467,6 +488,7 @@
         addRemoteIceCandidate : addRemoteIceCandidate,
         sendMessage : sendMessage,
         sendFile : sendFile,
+        acceptFile : acceptFile,
         setPeerDisplayName : function(id, displayName) { console.log('passing on name change:' +displayName); peers[id].setDisplayName(displayName); },
         PeerConnection: PeerConnection,
         IceCandidate: IceCandidate,

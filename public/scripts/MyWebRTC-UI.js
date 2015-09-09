@@ -314,12 +314,20 @@ MyWebRTC.UI = (function (container) {
     
     // When the user receieves a message
     $(MyWebRTC).on('DownloadComplete', function(evt, fileDataURL, id) {
+        
+        
         var downloadElem = $('#' + id.replace('.',''));
         downloadElem.html('');
 
-        var img = $('<img>');
-        img.attr('src', fileDataURL);
-        downloadElem.append(img);
+        
+        if (fileDataURL.substr(5, 5) == 'image') {
+            var img = $('<img>');
+            img.attr('src', fileDataURL);
+            downloadElem.append(img);
+        } else {
+            var anchor = $('<a>').text('Download').attr('download', id).attr('href',fileDataURL);
+            downloadElem.append(anchor);
+        }
     });
     
         // When a download starts
@@ -345,6 +353,8 @@ MyWebRTC.UI = (function (container) {
         
         downloadElem.append(accept).append(decline);
         $('#rtc-messages').append(downloadElem);
+        
+        scrollToMessagesBottom();
     });
     
     // When a download starts
