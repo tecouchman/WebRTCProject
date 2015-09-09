@@ -309,7 +309,7 @@ MyWebRTC.UI = (function (container) {
     
     // When the user sends a message
     $(MyWebRTC).on("MessageSent", function(evt, message) {
-        addMessage(true, message);
+        addMessage('local', message);
     });
     
     // When the user receieves a message
@@ -320,6 +320,31 @@ MyWebRTC.UI = (function (container) {
         var img = $('<img>');
         img.attr('src', fileDataURL);
         downloadElem.append(img);
+    });
+    
+        // When a download starts
+    $(MyWebRTC).on('FileOfferRecieved', function(evt, sender, name, filesize) {
+        var downloadElem = $('<div>').addClass('rtc-message').addClass('remote').addClass('download');
+        downloadElem.attr('id', name.replace('.',''));
+        downloadElem.append($('<p>').append(sender + ' would like to send a file:'));
+        downloadElem.append($('<p>').addClass('rtc-download-name').append(name));
+        
+        var accept = $('<button>').text('Accept').addClass('rtc-soft-button');
+        accept.click(function(event){
+            MyWebRTC.acceptFile(name);
+            downloadElem.fadeOut(200, 
+                function() { downloadElem.remove();
+            });
+        }) 
+        var decline = $('<button>').text('Decline').addClass('rtc-soft-button');
+        decline.click(function(event){
+            downloadElem.fadeOut(200, 
+                function() { downloadElem.remove();
+            });
+        })        
+        
+        downloadElem.append(accept).append(decline);
+        $('#rtc-messages').append(downloadElem);
     });
     
     // When a download starts
@@ -338,11 +363,13 @@ MyWebRTC.UI = (function (container) {
     });
     
     // When the user receieves a message
-    $(MyWebRTC).on('MessageReceived', function(evt, message, sender) {
-        addMessage(false, message, sender);
+    $(MyWebRTC).on('MessageReceived', function(evt, sender, message) {
+        addMessage(sender, message);
     });
     
-    var addMessage = function(isLocal, message, sender) {
+    var addMessage = function(sender, message) {
+        
+        var isLocal = sender == 'local';
         
         var message = emojione.toImage(message);
         
@@ -401,6 +428,9 @@ MyWebRTC.UI = (function (container) {
         // If the user has entered a message then 
         // send it to the other peers
         if ($('#rtc-input-message').val() != '') {
+            
+            console.log('sending: ' + $('#rtc-input-message').val());
+            
             // Send the message is the text box
             MyWebRTC.sendMessage( $('#rtc-input-message').val() );
         }
@@ -408,11 +438,9 @@ MyWebRTC.UI = (function (container) {
         // If the user has selected a file
         // send it to the other peers
         if (attachedFile != null) {
-
-            console.log('sending :'+ attachedFile);
-            
             // Send the message is the text box
             MyWebRTC.sendFile( attachedFile );
+            attachedFile = null;
         }
         
         $('#rtc-input-form')[0].reset();

@@ -330,7 +330,7 @@ input[type="checkbox"].audio-option:checked + label {
     display: inline-block;
 }
 
-#rtc-send {
+.rtc-soft-button, #rtc-send {
     margin: 3px !important;
     width: 60x;
     height: 30px;

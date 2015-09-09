@@ -26,11 +26,21 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         
         // If a message was recieved
         if (receivedData.type === 'message') {
+            console.log('got a message:' + receivedData.data);
             // Trigger a 'MessageReceived' event
-            $(MyWebRTC).trigger("MessageReceived", [ receivedData.data, localPeer.id ]);
+            $(localPeer).trigger("MessageReceived", [ receivedData.data ]);
             
+        } else if (receivedData.type === 'fileOffer') { // Else if a file has been offered
+            alert(receivedData.data.name + '   ' + receivedData.data.size)
+            // Trigger a 'MessageReceived' event
+            $(localPeer).trigger("FileOffer", [ receivedData.data.name, receivedData.data.size ]);
             
-        } else { // Else the data is a file:
+        } else if (receivedData.type === 'fileAccept') { // Else if a file has been offered
+            
+            // Trigger a 'MessageReceived' event
+            $(localPeer).trigger("FileAccept", [ receivedData.data.name ]);
+            
+        }else { // Else the data is a file:
             
             // If filesharing is disabled then ignore any recieved file data
             if (options.fileSharing) {
@@ -186,8 +196,19 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
     this.sendMessage = function(message) {
         // If their send data channel is open:
         if (localPeer.peerConnection.sendDataChannel.readyState === 'open') {
+            
+            console.log('im sending a message');
+            
             // Send the data to the peer connection, with the type 'message'
             localPeer.peerConnection.sendDataChannel.send(JSON.stringify({ type : "message", data : message }));
+        }
+    }
+    
+    this.send = function(data) {
+        // If their send data channel is open:
+        if (localPeer.peerConnection.sendDataChannel.readyState === 'open') {
+            // Send the data to the peer connection, with the type 'message'
+            localPeer.peerConnection.sendDataChannel.send(JSON.stringify(data));
         }
     }
     
