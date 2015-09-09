@@ -1,14 +1,18 @@
 
+module.exports.getUserCount = function() {
+    return Object.keys(clients).length;
+}
+
+// Map of clients
+var clients = {},
+// maps of room counts
+rooms = {};
+
 module.exports.set = function(http, db) {
     
     var io = require('socket.io')(http);
     var url = require('url');
     
-    // Map of clients
-    var clients = {},
-    // maps of room counts
-    rooms = {};
-
     // Set up a listener for when a client connects (a user visits the page)
     io.on('connection', function(socket) {
 
@@ -26,10 +30,13 @@ module.exports.set = function(http, db) {
             
         var session, room;
 
+        // Return an ID to the the new client
+        socket.emit('IdGenerated', socket.id);
+        
         // When the user requests the options:
         socket.on('GetOptions', function (data){
 
-            var iceServers;
+            var iceServers, fileOptions;
 
             db.IceServer.find({}, function(err, servers) {
                 iceServers = servers;
@@ -43,17 +50,24 @@ module.exports.set = function(http, db) {
                     room = roomResult;
                     onData();
                 });
+                
+                db.FileOptions.findOne({ roomId : session.roomId }, function(err, fileOptsResult) {
+                    fileOptions = fileOptsResult || true;
+                    onData();
+                });
             });
 
             // When the room/session/iceServer data becomes available:
             function onData() {
 
-                if (session && room && iceServers) {
+                if (session && room && iceServers && fileOptions) {
                     console.log('all data!');
                     console.log(room.name);
 
-                    var iceServerUrls = iceServers.forEach(function(num, elem) {
-                           return elem.url;
+                    var iceServerUrls = [];
+                    iceServers.forEach(function(elem, num) {
+
+                           iceServerUrls.push(elem.serverUrl);
                     });
 
                     // Example options for testing:
@@ -70,7 +84,18 @@ module.exports.set = function(http, db) {
                         'textChat' : room.hasMessaging,
                         'allowScreensharing' : room.allowScreensharing,
                         'iceServers' : iceServerUrls,
-                        'fileSharing' : room.hasFilesharing
+                        'fileSharing' : room.hasFilesharing,
+                        'embeddable' :  session.embeddable
+                    }
+                    
+                    if (room.hasFilesharing) {
+                        if (fileOptions.acceptedFileTypes) {
+                            RTCOptions['acceptedFiletypes'] = fileOptions.acceptedFileTypes.join();
+                        }
+                        
+                        if (fileOptions.maxFileSize) {
+                            RTCOptions['maxFileSize'] = fileOptions.maxFileSize;
+                        }
                     }
 
                     /* To be determined for Signalling?
@@ -85,7 +110,19 @@ module.exports.set = function(http, db) {
                     var RTCUIOptions = {
                         'passwordRequired' : session.passwordProtected,
                         'customisableId' : room.hasCustomUserIds,
-                        'fileSharing' : room.hasFilesharing
+                        'fileSharing' : room.hasFilesharing,
+                        'fullscreenEnabled': room.fullscreenEnabled,
+                        'popoutEnabled': room.popoutEnabled
+                    }
+                    
+                    if (room.hasFilesharing) {
+                        if (fileOptions.acceptedFileTypes) {
+                            RTCUIOptions['acceptedFiletypes'] = fileOptions.acceptedFileTypes.join();
+                        }
+                        
+                        if (fileOptions.maxFileSize) {
+                            RTCUIOptions['maxFileSize'] = fileOptions.maxFileSize;
+                        }
                     }
 
                     // If room is full:
@@ -108,9 +145,6 @@ module.exports.set = function(http, db) {
 
             rooms[roomId]++;
 
-            // Return an ID to the the new client
-            socket.emit('IdGenerated', socket.id);
-            
             // If the room doesn't have a password then
             // add the user to the room
             if (!session.passwordProtected) {
@@ -121,12 +155,12 @@ module.exports.set = function(http, db) {
 
         socket.on('Offer', function(data){
             console.log('Offer recieved for :' + data.peerId);
-            clients[data.peerId].socket.emit('Offer', { peerId: socket.id, peerType: data.peerType, offer: data.offer});
+            clients[data.peerId].socket.emit('Offer', { peerId: socket.id, displayName : data.displayName, peerType: data.peerType, offer: data.offer});
         });
 
         socket.on('Answer', function(data){
             console.log('Answer recieved for :' + data.peerId);
-            clients[data.peerId].socket.emit('Answer', { peerId: socket.id, peerType: data.peerType, answer: data.answer});
+            clients[data.peerId].socket.emit('Answer', { peerId: socket.id, displayName : data.displayName, peerType: data.peerType, answer: data.answer});
         });
 
         socket.on('IceCandidate', function(data){
@@ -188,9 +222,19 @@ module.exports.set = function(http, db) {
             });
             message.save(function(err) {
                 console.log('saved message.' + err.message);
-            });
-            
+            }); 
         });
+
+        
+        socket.on('DisplayNameChanged', function(data) {
+            socket.broadcast.to(roomId).emit('DisplayNameChanged', { remotePeerId : socket.id, displayName : data.displayName }); 
+        });
+
+        socket.on('VideoTrackToggled', function(data) {
+            socket.broadcast.to(roomId).emit('VideoTrackToggled', { remotePeerId : socket.id, enabled : data.enabled }); 
+        });
+    
+        
         
         function joinRoom(roomId){
             // Add the socket to the room

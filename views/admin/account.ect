@@ -1,0 +1,29 @@
+<% extend 'admin/layout' %>
+<h1>Account Settings</h1>
+
+<h2>Change Password</h2>
+<form action="/admin/account/change-password" method="post" id="rtc-change-password">
+    <fieldset>
+        <label>Current Password</label>
+        <input id="rtc-password" type="password" name="oldPassword" required/>
+    </fieldset>
+    <fieldset>
+        <label>New Password</label>
+        <input id="rtc-new-password" type="password" name="newPassword" required />
+    </fieldset>
+    <fieldset>
+        <label>Confirm New Password</label>
+        <p id="rtc-password-mismatch" class="warning hidden">Password doesn't match</p>
+        <input id="rtc-new-password-confirm" type="password" required />
+    </fieldset>
+    <button id='rtc-save-password' type="submit">Update Password</button>
+</form>
+    
+<h2>Change Email Address</h2>
+<form action="/admin/account/change_email_address" method="post" id="rtc-change-email">
+    <fieldset>
+        <label>New Email Address</label>
+        <input id="rtc-email" type="text" name="emailAddress" required/>
+    </fieldset>
+    <button id='rtc-save-email' type="submit">Update Email</button>
+</form>

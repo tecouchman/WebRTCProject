@@ -1,21 +1,41 @@
 <html>
     <head>
-        <link rel="stylesheet" href="/Styles/admin/styles.css" />
-        <title>MyWebRTC Dashboard</title>
+        <link rel="stylesheet" href="/styles/admin/styles.css" />
+        <title>MyWebRTC Admin Panel</title>
     </head>
     <body>
         <header>
             <div class="container">
-                <div class="user button">Admin&nbsp ▾</div>
-                <a href="/admin/settings" class="menu-item">Settings</a>
-                <a href="/admin/logs" class="menu-item">Logs</a>
-                <a href="/admin/themes" class="menu-item">Themes</a>
-                <a href="/admin/sessions" class="menu-item">Sessions</a>
-                <a href="/admin/rooms" class="menu-item">Rooms</a>
-                <h1>MyWebRTC Dashboard</h1>
+            <% if @user? : %>
+                <nav id="rtc-main-menu">
+                    <ul>
+                        <li><a href="/admin">Home</a></li>
+                        <li><a href="/admin/rooms">Rooms</a></li>
+                        <li><a href="/admin/sessions">Sessions</a></li>
+                        <li><a href="/admin/themes">Themes</a></li>
+                        <li><a href="/admin/logs">Logs</a></li>
+                        <li><a href="/admin/settings">Settings</a></li>
+                        <li class="user-menu button"><%= @user.username %>&nbsp ▾
+                            <ul class="sub-menu">
+                                <li><a href="/admin/account">Account</a></li>
+                                <li><form action="/admin/logout" method="post" ><button type="submit" >Log Out</button></form></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            <% end %>
+            <h1>MyWebRTC</h1>
             </div>
         </header>
         <div class="container">
+            <% if @messages? : %>
+                <% if @messages.err? : %>
+                    <p id="rtc-reset-message" class="error"><%= @messages.err  %></p>
+                <% end %>
+                <% if @messages.info? : %>
+                    <p id="rtc-reset-message" class="info"><%= @messages.info  %></p>
+                <% end %>
+            <% end %>
             <% content %>
         </div>
 

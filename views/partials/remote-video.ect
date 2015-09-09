@@ -1,0 +1,11 @@
+<div id="remote<%= @id%>" class="rtc-remote-video <% if @presenter == true : %>presenter<% end %>" >
+<div class="test">
+    <video <%- @srcTag %>="<%- @srcValue %>" autoplay></video>
+    <div class="rtc-local-video-controls">
+        <input type="checkbox" class="video-control video-option" id="rtc-stop-remote-video"  data-id="<%= @id %>" checked />
+        <label for="rtc-stop-remote-video"></label>
+        <input type="checkbox" class="video-control audio-option" id="rtc-stop-remote-audio" data-id="<%= @id %>" checked />
+        <label for="rtc-stop-remote-audio"></label>
+    </div>
+</div>
+</div>

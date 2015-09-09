@@ -51,6 +51,18 @@
         <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" />
         <label for="rtc-add-room-filesharing"></label>
     </fieldset>
+    <div id="rtc-file-sharing-section" class="info hidden">
+        <fieldset>
+            <label>Max File Size (KB)</label>
+            <p>Set to 0 for no limit</p>
+            <input id="rtc-add-room-max-file-size" type="number" name="maxFileSize" value="2000" />
+        </fieldset>
+        <fieldset>
+            <label>Allowed File Types</label>
+            <p>Separate using commas (e.g. .png, .jpg, .gif). Leave empty to allow all files.
+            <input id="rtc-add-room-accepted-file-types" type="text" name="acceptedFileTypes" />
+        </fieldset>
+    </div>
     <fieldset>
         <label>Custom Usernames</label>
         <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" />
@@ -78,9 +90,15 @@
         <label for="rtc-add-room-log-messages"></label>
     </fieldset>
     <fieldset>
-        <label>Fullscreen</label>
+        <label>Allow Fullscreen</label>
         <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" />
         <label for="rtc-add-room-fullscreen"></label>
+    </fieldset>
+    <fieldset>
+    <label>Allow Popout</label>
+        <div class="info">Allow users to open the chat room in a popup window</div>
+        <input id="rtc-add-room-popout" type="checkbox" name="popoutEnabled" />
+        <label for="rtc-add-room-popout"></label>
     </fieldset>
     <button id='rtc-add-room-button' type="submit">Add Room</button>
 </form>

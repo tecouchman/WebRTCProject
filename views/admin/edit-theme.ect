@@ -1,0 +1,31 @@
+<% extend 'admin/layout' %>
+
+<h1>
+    <% if @mode == 'add' : %>
+        Create New Theme
+    <% else : %>
+        Edit Theme
+    <% end %>
+</h1>
+<form action="/admin/<%= @mode %>_theme/<%= @theme?.themeName %>" method="post">
+    <fieldset>
+        <label>Theme Name</label>
+        <input id="rtc-add-theme-name" type="text" name="themeName" value="<%= @theme?.themeName %>" />
+    </fieldset>
+    <fieldset>
+        <label>Layout Name</label>
+        <input id="rtc-add-layout-name" type="text" name="layoutName" value="<%= @theme?.layoutName %>" />
+    </fieldset>
+
+    <h2>Custom Css</h2>
+    <input id="rtc-has-custom-css" type="checkbox" name="hasCustomCss" <% if @theme?.hasCustomCss : %>checked<% end %> />
+    <label for="rtc-has-custom-css" ></label>
+    
+    <div id="rtc-custom-css-section" class="info <% if !@theme?.hasCustomCss : %>hidden<% end %>">
+        <fieldset>
+            <p>Custom CSS</p>
+            <textarea id="rtc-add-layout-css" name="customCss"><%- @customCss %></textarea>
+        </fieldset>
+    </div>
+    <button id='rtc-add-theme-button' type="submit">Save Theme</button>
+</form>

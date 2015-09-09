@@ -1,7 +1,6 @@
 <% extend 'admin/layout' %>
 <h1>Welcome to the MyWebRTC admin panel.</h1>
-<p id="rtc-login-failed" class="warning <% if @failedAttempt == true : %>hidden<% end %>">Incorrect username or password. Please try again.</p>
-<form action="/login" method="post">
+<form action="/admin/login" method="post">
 <fieldset>
     <label>Username</label>
     <input type="text" name="username" required/>

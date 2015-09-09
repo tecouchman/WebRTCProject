@@ -1,0 +1,20 @@
+<% extend 'admin/layout' %>
+<a class="button image-button" href="/admin/add_theme" style="float: right">
+<span>Create New Theme</span> <img src="/images/icons/add-white.png"></a>
+
+<h1>Themes</h1>
+<ul id="theme-list" class="list">
+    <p class="info <% if @themes && @themes.length > 0 : %>hidden<%end%>">There are no themes available. To add one click the 'Create New Theme' button.</p>
+    <% if @themes : %>
+        <% for theme in @themes : %>
+            <li id="theme<%= theme.themeName %>">
+                <a href="/admin/edit_theme/<%= theme.themeName %>">
+                    <span><%= theme.themeName %></span>
+                    <span><%= theme.layoutName %></span>
+                </a>
+                <button class="delete-button button-red button-small" data-id="<%= theme.themeName %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
+                    <a class="button button-small" href="/admin/edit_theme/<%= theme.themeName %>" style="float: right"><img src="/images/icons/edit-white.png"></a>
+            </li>
+        <% end %>
+    <% end %>
+</ul>
