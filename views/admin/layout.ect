@@ -1,6 +1,11 @@
 <html>
     <head>
         <link rel="stylesheet" href="/styles/admin/styles.css" />
+        <% if @styles : %>
+            <% for style in @styles : %>
+                <% include 'partials/style', { 'style': style } %>
+            <% end %>
+        <% end %>
         <title>MyWebRTC Admin Panel</title>
     </head>
     <body>

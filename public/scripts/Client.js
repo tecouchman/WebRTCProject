@@ -11,7 +11,6 @@ $(document).ready(function() {
     
     // When the server has generated a peerID
     socket.on('IdGenerated', function(localPeerId){
-        console.log('My Id:' + localPeerId);
         // Store it in the MyWebRTC object.
         localID = localPeerId;
     })

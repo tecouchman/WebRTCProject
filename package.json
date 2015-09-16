@@ -1,15 +1,52 @@
 {
-  "name": "MyWebRTC",
+  "name": "mywebrtc",
   "version": "0.2.0",
   "description": "WebRTC Framework",
   "dependencies": {
     "async": "^1.4.2",
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.13.3",
     "cookie-parser": "^1.3.5",
     "crypto": "0.0.3",
+    "ect": "^0.5.9",
     "express": "^4.13.1",
     "express-flash": "0.0.2",
     "express-session": "^1.11.3",
+    "mongoose": "~4.0.0",
+    "mongoose-auto-increment": "^4.0.0",
+    "node-webkit": "0.0.0",
+    "node-webrtc": "0.0.0",
+    "nodemailer": "^1.4.0",
+    "nwjs": "0.0.15",
+    "passport": "^0.3.0",
+    "passport-local": "^1.0.0",
     "socket.io": "^1.3.6"
   },
-  "main": "index-runner.js"
+  "main": "index-runner.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tecouchman/WebRTCProject.git"
+  },
+  "keywords": [
+    "WebRTC",
+    "RTC",
+    "real-time",
+    "video",
+    "chat",
+    "communication",
+    "framework",
+    "call",
+    "audio",
+    "filesharing"
+  ],
+  "author": "Tom Couchman",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/tecouchman/WebRTCProject/issues"
+  },
+  "homepage": "https://github.com/tecouchman/WebRTCProject#readme"
 }

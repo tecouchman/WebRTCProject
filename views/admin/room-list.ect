@@ -1,12 +1,11 @@
 <% extend 'admin/layout' %>
 <a class="button" href="/admin/add_room" style="float: right">Add New Room</a>
 <h1>Rooms</h1>            
-<% if @rooms && @rooms.length > 0 : %>
-    <ul id="room-list" class="list">
+<ul id="room-list" class="list">
+    <p id="rtc-empty-message" class="info <% if @rooms && @rooms.length > 0 : %>hidden<%end%>">There are no active rooms</p>
+    <% if @rooms && @rooms.length > 0 : %>
         <% for room in @rooms : %>
             <% include 'admin/partials/room-list-item', { 'room': room } %>
         <% end %>
-    </ul>
-<% else: %>
-    <p class="info">There are no active rooms<p>
-<% end %>
+    <% end %>
+</ul>

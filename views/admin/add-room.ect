@@ -17,18 +17,6 @@
         <input id="rtc-add-room-presentation" type="checkbox" name="isPresentation" />
         <label for="rtc-add-room-presentation"></label>
     </fieldset>
-    <div class="info">
-        <fieldset>
-            <label>Video</label>
-            <input id="rtc-add-room-broadcast-video" type="checkbox" name="hasBroadcastVideo" />
-            <label for="rtc-add-room-broadcast-video"></label>
-        </fieldset>
-        <fieldset>
-            <label>Audio</label>
-            <input id="rtc-add-room-broadcast-audio" type="checkbox" name="hasBroadcastAudio" />
-            <label for="rtc-add-room-broadcast-audio"></label>
-        </fieldset>
-    </div>
     <h2>Client Media</h2>
     <p class="info">Setting for visitors to the rooms</p>
     <fieldset>
@@ -43,6 +31,7 @@
     </fieldset>
     <fieldset>
         <label>Messaging</label>
+        <p class="info">Messaging will still be between all peers, even in presentation mode.</p>
         <input id="rtc-add-room-messaging" type="checkbox" name="hasMessaging" />
         <label for="rtc-add-room-messaging"></label>
     </fieldset>
@@ -71,7 +60,9 @@
     <fieldset>
         <label>Theme</label>
         <select id="rtc-add-room-theme" name="theme">
-            <option value="default">Default</option>
+            <% for theme in @themes : %>
+                <option value="<%- theme._id %>"><%= theme.themeName %></option>
+            <% end %>
         </select>
     </fieldset>
     <fieldset>

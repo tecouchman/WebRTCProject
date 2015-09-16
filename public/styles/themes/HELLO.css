@@ -1,5 +1,3 @@
-
-
 /* style for the containing div */
 #rtc-container {
     position: relative;
@@ -34,7 +32,7 @@
     height: 100%;
     background-color: #262c33;
     text-align: center;
-    width: calc(100% - 300px);
+    width: 500px;
     -webkit-user-select: none;
     -moz-user-select: -moz-none;
     -ms-user-select: none;
@@ -55,7 +53,7 @@
 
 #rtc-messages-container {
     height: 100%;
-    width: 300px;
+    width: calc(100% - 500px);
     background-color: #e8eded;
     min-height: 200px;
 }
@@ -481,6 +479,7 @@ button, .rtc-soft-button, #rtc-send {
     border-style: solid;
     display: block;
     width: 0;
+    z-index: 1;
     top: 14px;
 }
 

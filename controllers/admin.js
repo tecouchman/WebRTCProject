@@ -1,4 +1,4 @@
-module.exports.set = function(app, passport, db, accountManager) {
+module.exports = function(app, db) {
         
     var url = require('url'),
         nodemailer = require('nodemailer'),
@@ -6,24 +6,11 @@ module.exports.set = function(app, passport, db, accountManager) {
         crypto = require('crypto'),
         fs = require('fs');
     
-    // Middleware for checking whether a user is authenticated.
-    // Easily added to route code by placing the middleware method
-    // name before the callback. Then called by express when a
-    // request is made.
-    var checkAuthenticated = function(req, res, next) {
-        // If the request is authenticated then no action required,
-        // simple call next() to allow to the next middleware.
-        if (req.isAuthenticated()) {
-            return next();   
-        } else {
-            // If the user is not authenticated
-            // redirect to the login screen
-            res.redirect('/admin/login');
-        }
-    }
+    
+    var exports = {};
     
     // Listener for when a user request the login page
-    app.get('/admin/login', function(req, res) {
+    exports.renderLogin = function renderLogin(req, res) {
 
         // Render the page using ECT middleware.
         // Pass in the req.flash message if there is one 
@@ -33,19 +20,17 @@ module.exports.set = function(app, passport, db, accountManager) {
             messages: req.flash()
         }); 
 
-    });
+    };
 
     // When a user posts their account details from the the login page
-    app.post('/admin/login',
-      passport.authenticate('login', {
-        successRedirect : '/admin',
-        failureRedirect : '/admin/login',
-        failureFlash : true
-      })
-    );
+    exports.login = app.get('passport').authenticate('login', {
+                                successRedirect : '/admin',
+                                failureRedirect : '/admin/login',
+                                failureFlash : true
+                              });
     
     // Listener for when a user request the login page
-    app.get('/admin/request_password_reset', function(req, res) {
+    exports.renderPasswordResetRequest = function renderPasswordResetRequest(req, res) {
 
         // Render the page using ECT middleware.
         // Pass in the req.flash message if there is one 
@@ -54,10 +39,10 @@ module.exports.set = function(app, passport, db, accountManager) {
             messages: req.flash()
         });
 
-    });
+    };
 
     // When a user posts their account details from the the login page
-    app.post('/admin/request_password_reset', function(req, res) {
+    exports.requestPasswordReset = function requestPasswordReset(req, res) {
 
         // Generate random bytes to build teh token from
         crypto.randomBytes(25, function(ex, buf){
@@ -122,13 +107,11 @@ module.exports.set = function(app, passport, db, accountManager) {
                 });
         }
              
-    });
+    };
     
     // Listener for when a user request the login page
-    app.get('/admin/reset_password/:token', function(req, res) {
+    exports.renderPasswordReset = function renderPasswordReset(req, res) {
 
-        
-        console.log('token: ' + req.params.token);
         db.User.findOne({ passwordResetToken: req.params.token, 
                       passwordResetTokenExpiry: { $gt : Date.now() } },
                     function(err, user) {
@@ -141,10 +124,10 @@ module.exports.set = function(app, passport, db, accountManager) {
                 messages: req.flash(),
             });
         });
-    });
+    };
     
     // Listener for when a user request the login page
-    app.post('/admin/reset_password/:token', function(req, res) {
+    exports.resetPassword = function resetPassword(req, res) {
 
         db.User.findOne({ passwordResetToken: req.params.token, 
                       passwordResetTokenExpiry: { $gt : Date.now() } },
@@ -170,37 +153,37 @@ module.exports.set = function(app, passport, db, accountManager) {
             }
             
         });
-    });
+    };
 
     
     // When a logs out
-    app.post('/admin/logout', function logoutPost(req, res) {
+    exports.logout = function logout(req, res) {
         // Destroy the session
         //req.session.destroy();
         // and log the user out
         req.logout();
         // The redirect to the login page
         res.redirect('/admin/login');
-    });
+    };
 
     // On HTTP Get for admin page
-    app.get('/admin', checkAuthenticated, function(req, res) {
+    exports.renderAdmin = function(req, res) {
         // Render the dashboard
         res.render('admin/dashboard', {
             user: req.user          
         }); 
-    });
+    };
     
     // On get request for rooms list
-    app.get('/admin/account', checkAuthenticated, function(req, res) {
+    exports.renderAccount = function(req, res) {
         res.render('admin/account', {
             user: req.user,
             scripts: [  '/scripts/jquery.min.js', '/scripts/admin/account-settings.js' ]
         }); 
-    });
+    };
     
     // Change password
-    app.post('/admin/account/change-password', checkAuthenticated, function(req, res) {
+    exports.changePassword = function changePassword(req, res) {
         
         db.User.findOne({ username: req.user.username, password: req.body.oldPassword }, 
             function(err, user){
@@ -227,10 +210,10 @@ module.exports.set = function(app, passport, db, accountManager) {
             }
         );
 
-    });
+    };
     
     // Change password
-    app.post('/admin/account/change_email_address', checkAuthenticated, function(req, res) {
+    exports.changeEmailAddress = function changeEmailAddress(req, res) {
         
         db.User.findOne({ username: req.user.username }, 
             function(err, user){
@@ -247,10 +230,10 @@ module.exports.set = function(app, passport, db, accountManager) {
             }
         );
 
-    });
+    };
 
     // On get request for rooms list
-    app.get('/admin/rooms', checkAuthenticated, function(req, res) {
+    exports.renderRooms = function renderRooms(req, res) {
 
         db.Room.find(function(err, rooms) {
             res.render('admin/room-list', {
@@ -259,11 +242,11 @@ module.exports.set = function(app, passport, db, accountManager) {
                 scripts: [  '/scripts/jquery.min.js', '/scripts/admin/room-list.js' ]
             }); 
         });
-    });
+    };
 
 
     // On client room delete request with the id of the room to be deleted.
-    app.delete('/admin/rooms/:roomId', checkAuthenticated, function(req, res) {
+    exports.deleteRoom = function deleteRoom(req, res) {
 
         // Get the roomId from the end of the request URL
         var roomId = req.params.roomId;
@@ -281,182 +264,9 @@ module.exports.set = function(app, passport, db, accountManager) {
                 res.send({status:"nok", message:"Room could not be deleted"}); 
             }
         });
-    });
+    };
 
-    // On client get request for the sessions list
-    app.get('/admin/sessions', checkAuthenticated, function(req, res) {
-
-        // Search teh db for all sessions
-        db.Session.find(function sessionResultsCallback(err, sessions) {
-            // Render the sessions list, and pass in the session data
-            res.render('admin/session-list', {
-                user: req.user,
-                sessions: sessions,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/session-list.js' ]
-            }); 
-        });
-    });
-
-    // On client session delete request with the id of the room to be deleted.
-    app.delete('/admin/sessions/:sessionId', checkAuthenticated, function(req, res) {
-
-        // Get the sessionId from the end of the request URL
-        var sessionId = req.params.sessionId;
-
-        // Search for the room based on the URL
-        db.Session.findOne({ sessionId: sessionId },function(err, session) {
-            // If the session is found
-            if (session) {
-                // Delete it
-                session.remove();
-                // Send a success message
-                res.send({status:"ok", message:"Session " + session.name + " deleted."});
-            } else {
-                // If the session is not found return a failure message
-                res.send({status:"nok", message:"Session could not be deleted"}); 
-            }
-        });
-    });
-    
-    // On client get request for the theme list
-    app.get('/admin/themes', checkAuthenticated, function(req, res) {
-
-        // Search teh db for all sessions
-        db.Theme.find(function themeResultsCallback(err, themes) {
-            // Render the theme list, and pass in the theme data
-            res.render('admin/theme-list', {
-                user: req.user,
-                themes: themes,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-list.js' ]
-            }); 
-        });
-    });
-
-
-    // On client get request for the add session page
-    app.get('/admin/add_session', checkAuthenticated, function(req, res) {
-
-        db.Room.find(function sessionResultsCallback(err, rooms) {
-
-            res.render('admin/add-session', {
-                user: req.user,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/session-add.js' ],
-                rooms: rooms
-            }); 
-        });
-
-    });
-
-    // On client post to the add session page
-    app.post('/admin/add_session', checkAuthenticated, function (req, res) {
-
-            var newSession = new db.Session({
-                name: req.body.name,
-                url: req.body.url,
-                embeddable: req.body.embeddable,
-                roomId: req.body.roomId,
-                passwordProtected : req.body.passwordProtected
-            });
-            newSession.save(function(err, session, numberAffected) {
-                if (req.body.passwordProtected 
-                    && req.body.password != null 
-                    && req.body.password != '') {
-                        addCredentials(session.sessionId, req.body.password ,function(err, password, numberAffected) {
-                            res.redirect(302, '/admin/sessions'); 
-                        });
-                } else {
-                    // Take the user to the dashboard
-                    res.redirect(302, '/admin/sessions'); 
-                }
-            });
-        }
-    );
-    
-    function addCredentials(sessionId, password, callback) {
-        var newPassword = new db.SessionCredentials({
-            sessionId: sessionId,
-            password: password
-        });
-        newPassword.save(callback);
-    }
-
-    app.get('/admin/edit_session/:sessionId', checkAuthenticated, function(req, res) {
-
-        // Get the session id from the requested url
-        var sessionId = req.params.sessionId;
-
-        // Find the room in the DB and show the edit page for that room
-        db.Session.findOne({
-            sessionId: sessionId
-        }, function(err, session) {
-            // If the sessions is found, display it
-            if (session) {
-                // Search the db for all rooms
-                db.Room.find(function sessionResultsCallback(err, rooms) {
-                    res.render('admin/edit-session', {
-                        user: req.user,
-                        session: session,
-                        rooms: rooms,
-                        baseURL: req.headers.host,
-                        scripts: [ '/scripts/jquery.min.js', '/scripts/admin/session-add.js' , '/scripts/admin/session-edit.js' ]
-                    }); 
-                });
-            } else {
-                // else redirect the user to the room list
-                res.redirect(302, '/admin'); 
-            }
-
-        });
-
-    });
-
-    app.post('/admin/edit_session/:sessionId', checkAuthenticated,
-        function (req, res) {
-            // Get the session id from the requested url
-            var sessionId = req.params.sessionId;
-
-            var conditions = { sessionId: sessionId };
-            // Create a object to hold the new values
-            var updatedValues = { 
-                name: req.body.name,
-                url: req.body.url,
-                embeddable: req.body.embeddable,
-                roomId: req.body.roomId,
-                passwordProtected : req.body.passwordProtected
-            };
-
-            // Call update on the Sessions model, passing in the
-            // conditions that identify the session to update and the 
-            // values to update. On complete redirect to the sessions list
-            db.Session.update(conditions, updatedValues, {}, function() {
-                
-                db.SessionCredentials.findOne({ sessionId : sessionId }, function(err, sessionCredential) {
-                    
-                    var redirect = function() { res.redirect(302, '/admin/sessions') }; 
-                    
-                    if (sessionCredential) {
-                        if (req.body.passwordProtected) {
-                            sessionCredential.password = req.body.password;
-                            sessionCredential.save(redirect);
-                        } else {
-                            sessionCredential.remove();
-                        }
-                       
-                    } else {
-                        if (req.body.passwordProtected) {
-                            addCredentials(sessionId, req.body.password, redirect);   
-                        } else {
-                            redirect();
-                        }
-                    }
-                    
-                });
-            });
-        }
-    );
-
-
-    app.get('/admin/settings', checkAuthenticated, function(req, res) {
+    exports.renderSettings = function renderSettings(req, res) {
 
         var stunServers, turnServers;
         
@@ -490,11 +300,10 @@ module.exports.set = function(app, passport, db, accountManager) {
             }
         }
 
-    });
+    };
 
     // On post of ice server from client
-    app.post('/admin/ice-servers', checkAuthenticated,
-        function (req, res) {
+    exports.addIceServer = function addIceServer(req, res) {
 
             // Create a new room with the data from the add_room form
             var newServer = new db.IceServer({ 
@@ -505,12 +314,10 @@ module.exports.set = function(app, passport, db, accountManager) {
                 // Send the success status back to the user
                 res.send({status:"ok", message:"URL " + req.body.url + " added to database"});
             });
-        }
-    );
+    };
 
     // On post of ice server from client
-    app.delete('/admin/ice-servers', checkAuthenticated,
-        function (req, res) {
+    exports.deleteIceServer = function deleteIceServer(req, res) {
 
             // Search for the room based on the URL
             db.IceServer.findOne({ serverUrl: req.body.url },function(err, server) {
@@ -525,149 +332,22 @@ module.exports.set = function(app, passport, db, accountManager) {
                     res.send({status:"nok", message:"Server could not be deleted"}); 
                 }
             });
-        }
-    );
+    };
     
-    
-    
-    
-    
-    app.get('/admin/add_theme', checkAuthenticated, function(req, res) {
 
-        res.render('admin/edit-theme', {
-            mode: 'add',
-            user: req.user,
-            scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-edit.js' ]
-        }); 
+    exports.renderAddRoom = function renderAddRoom(req, res) {
 
-    });
-
-    
-    // TODO: check if theme name already exists before creating:
-    
-    app.post('/admin/add_theme', checkAuthenticated,
-        function (req, res) {
-            console.log('Adding theme: ' + req.body.themeName);
-        
-            var hasCustomCss = false;
-            if (req.body.hasCustomCss && req.body.customCss != '') {
-                hasCustomCss = true;
-
-                var cssUrl = app.get('root') + '/public/styles/themes/' + encodeURIComponent(req.body.themeName) + '.css'
-            
-                fs.writeFile(cssUrl, req.body.customCss, function(err) {
-                    if (err) {
-                        console.log(err.message);   
-                    }
-                });
-                
-            }
-        
-            // Create a new room with the data from the add_room form
-            var newTheme = new db.Theme({ 
-                themeName: req.body.themeName,
-                layoutName: req.body.layoutName,
-                hasCustomCss : hasCustomCss
-            });
-        
-            newTheme.save(function(err) {
-                // Take the user to the dashboard
-                res.redirect(302, '/admin/themes'); 
-            });
-        
-            
-        }
-    );
-    
-    app.get('/admin/edit_theme/:themeName', checkAuthenticated, function(req, res) {
-        
-        // Get the theme name from the requested url
-        var themeName = req.params.themeName;
-        
-
-        
-        db.Theme.findOne({ themeName: themeName },function(err, theme) {
-            
-            var customCss = '';
-            
-            // Method to render the theme, defined as it will be called from different 
-            // places depending on whether the page has custom css
-            var renderEditTheme = function() {
-                res.render('admin/edit-theme', {
-                    mode: 'edit',
-                    user: req.user,
-                    theme: theme,
-                    customCss : customCss,
-                    scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-edit.js' ]
-                }); 
-            }
-            
-            if (theme.hasCustomCss) {
-            
-                var cssUrl = app.get('root') + '/public/styles/themes/' + encodeURIComponent(theme.themeName) + '.css'
-                console.log('reading: ' + cssUrl);
-                fs.readFile(cssUrl, function(err, data) {
-                    if (!err && data) {
-                        customCss = data.toString();
-                    } else if (err) {
-                        console.log(err);   
-                    }
-                                    
-                    console.log('read: ' + customCss);
-                    
-                    renderEditTheme();
-                });   
-            } else {
-                renderEditTheme();   
-            }
-            
-
-            
-
+        db.Theme.find({}, function(err, themes) {
+            res.render('admin/add-room', {
+                user: req.user,
+                themes: themes,
+                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ]
+            }); 
         });
 
-    });
-    
+    };
 
-    
-    app.post('/admin/edit_theme/:themeName', checkAuthenticated, function (req, res) {
-            // Get the theme name from the requested url
-            var themeName = req.params.themeName;
-
-            var conditions = { themeName: themeName };
-            // Create a object to hold the new values
-            var updatedValues = { 
-                themeName: req.body.themeName,
-                layoutName: req.body.layoutName
-            };
-
-            // Call update on the theme model, passing in the
-            // conditions that identify the theme to update and the 
-            // values to update. On complete redirect to the themes list
-            db.Theme.update(conditions, updatedValues, {}, function() {
-                // Take the user to the dashboard
-                res.redirect(302, '/admin/themes'); 
-            });
-        }
-    );
-
-    
-    
-    
-    
-    
-    
-    app.get('/admin/add_room', checkAuthenticated, function(req, res) {
-
-        res.render('admin/add-room', {
-            user: req.user,
-            scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ]
-        }); 
-
-    });
-
-    app.post('/admin/add_room', checkAuthenticated,
-        function (req, res) {
+    exports.addRoom = function addRoom(req, res) {
             console.log('Adding room: ' + req.body.name);
             // Create a new room with the data from the add_room form
             var newRoom = new db.Room({ 
@@ -704,11 +384,9 @@ module.exports.set = function(app, passport, db, accountManager) {
             });
         
             
-        }
-    );
+    };
 
-    app.post('/admin/edit_room/:roomId', checkAuthenticated,
-        function (req, res) {
+    exports.saveRoom = function saveRoom(req, res) {
             // Get the room number from the requested url
             var roomId = req.params.roomId;
 
@@ -737,10 +415,9 @@ module.exports.set = function(app, passport, db, accountManager) {
                 // Take the user to the dashboard
                 res.redirect(302, '/admin/rooms'); 
             });
-        }
-    );
+    };
 
-    app.get('/admin/edit_room/:roomId', checkAuthenticated, function(req, res) {
+    exports.renderEditRoom = function renderEditRoom(req, res) {
 
         // Get the room number from the requested url
         var room = req.params.roomId;
@@ -752,35 +429,39 @@ module.exports.set = function(app, passport, db, accountManager) {
             // If the room is found, display it
             if (room) {
                 
-                if (room.hasFilesharing) {
-                    db.FileOptions.findOne({ roomId : room.roomId }, function(err, fileOptions) {
-                        if (fileOptions && !err) {
-                            res.render('admin/edit-room', {
-                                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
-                                room: room,
-                                fileOptions : fileOptions
-                            });  
-                        } else {
-                            // else redirect the user to the room list
-                            res.redirect(302, '/admin'); 
-                        }
-                    });
-                } else {
-                    res.render('admin/edit-room', {
-                        user: req.user,
-                        scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
-                        room: room
-                    });  
-                }
+                db.Theme.find({}, function(err, themes) {
+                    if (room.hasFilesharing) {
+                        db.FileOptions.findOne({ roomId : room.roomId }, function(err, fileOptions) {
+                            if (fileOptions && !err) {
+                                res.render('admin/edit-room', {
+                                    scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
+                                    room: room,
+                                    themes: themes,
+                                    fileOptions : fileOptions
+                                });  
+                            } else {
+                                // else redirect the user to the room list
+                                res.redirect(302, '/admin'); 
+                            }
+                        });
+                    } else {
+                        res.render('admin/edit-room', {
+                            user: req.user,
+                            scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
+                            room: room,
+                            themes: themes
+                        });  
+                    }
+                });
             } else {
                 // else redirect the user to the room list
                 res.redirect(302, '/admin'); 
             }
 
         });
-    });
+    };
     
-    app.get('/admin/logs/', checkAuthenticated, function(req, res) {
+    exports.renderLogs = function renderLogs(req, res) {
         
         db.Message.distinct('sessionId', function(err, sessionIds){
             
@@ -793,10 +474,10 @@ module.exports.set = function(app, passport, db, accountManager) {
                 });              
             }); // end find sessions based on unique ids
         }); // end find unique session ids in message
-    }); // end get /admin/logs
+    }; // end get /admin/logs
     
     
-    app.get('/admin/logs/:sessionId', checkAuthenticated, function(req, res) {
+    exports.renderLog = function renderLog(req, res) {
         
         // Get the sessionId from the requested url
         var sessionId = req.params.sessionId;
@@ -807,30 +488,16 @@ module.exports.set = function(app, passport, db, accountManager) {
                 user: req.user,
                 messages: messages,
                 sessionId : sessionId,
-                scripts: [  '/scripts/jquery.min.js', '/scripts/ect.min.js' ,'/scripts/admin/logs.js' ]
+                styles:  [ '//cdn.jsdelivr.net/emojione/1.5.0/assets/css/emojione.min.css' ],
+                scripts: [ '//cdn.jsdelivr.net/emojione/1.5.0/lib/js/emojione.min.js' , '/scripts/jquery.min.js', '/scripts/ect.min.js' ,'/scripts/admin/logs.js']
             });              
         }); // end find sessions based on unique ids
 
-    });
-    
-        app.get('/admin/logs/:sessionId', checkAuthenticated, function(req, res) {
-        
-        // Get the sessionId from the requested url
-        var sessionId = req.params.sessionId;
-        
-        db.Message.find({ sessionId : sessionId } ,function(err, messages) {
+    };
 
-            res.render('admin/session-log', {
-                user: req.user,
-                messages: messages,
-                scripts: [  '/scripts/jquery.min.js', '/scripts/ect.min.js' ,'/scripts/admin/settings.js' ]
-            });              
-        }); // end find sessions based on unique ids
-
-    });
     
     // On client log delete request with the sessionId of the logs to be deleted.
-    app.delete('/admin/logs/:sessionId', checkAuthenticated, function(req, res) {
+    exports.deleteLog = function deleteLog(req, res) {
 
         // Get the sessionId from the end of the request URL
         var sessionId = req.params.sessionId;
@@ -846,25 +513,8 @@ module.exports.set = function(app, passport, db, accountManager) {
                 res.send({status:"ok", message:"Logs deleted."});
             } 
         });
-    });
+    };
     
-    function getMultiDataAsyncManager(callback) {
-        var multiArgs = arguments;
-        
-        return function() { 
-            if (multiArgs.length == 1) {
-                callback();   
-            } else {
-                var dataAvailable = true;
-                for (var loop = 0; loop < multiArgs.length; loop++) {
-                    if (multiArgs[loop] == undefined || multiArgs[loop] == null) {
-                        dataAvailable = false;
-                    }
-                    if (dataAvailable) {
-
-                    }
-                }
-            }
-        }
-    }
+    return exports;
+    
 }

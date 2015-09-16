@@ -5,7 +5,7 @@
 <h1>Database:</h1>
 <form action="/install/database" method="post">
     <fieldset>
-        <label>Url</label>
+        <label>URL</label>
         <p id="rtc-username-empty" class="warning hidden">Please enter the database username</p>
         <p id="rtc-username-invalid" class="warning hidden">Username is invalid</p>
         <input id="rtc-install-username" type="text" name="url" />
@@ -26,6 +26,11 @@
         <label>Confirm Password</label>
         <p id="rtc-password-mismatch" class="warning hidden">Password doesn't match</p>
         <input id="rtc-install-password-confirm" type="password" />
+    </fieldset>
+    <fieldset>
+        <label>Database Table Prefix</label>
+        <p class="info">If this database contains other data, you may wish to prefix all tables used by MyWebRTC inorder to avoid name collisions</p>
+        <input id="rtc-install-table-prefix" type="text" name="tableprefix" />
     </fieldset>
     <button id='rtc-register-button' type="submit">Next</button>
 </form>

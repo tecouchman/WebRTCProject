@@ -16,6 +16,10 @@ $('.delete-button').click(function(event) {
                     
                     $('#room' + roomToDelete).hide(100, function() {
                         $('#room' + roomToDelete).remove();    
+                        
+                        if ($('.room').length == 0) {
+                            $('#rtc-empty-message').show(100);
+                        }
                     })
                     
                 } else {

@@ -17,21 +17,25 @@ h2 {
     font-size: 1.2em;
 }
 
-
 header {
+    width: 100%;
     padding: 0;
     color: #77c6c6;
-
-    border-bottom: 2px solid #77c6c6;
-    box-shadow: 0px 3px 3px #e5e5e5;
+    height: 60px;  
+    border-bottom: 1px solid #77c6c6;
+    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.12);
     z-index: 100;
     margin-bottom: 5px;
+    position: fixed;
+    background-color: white;
+}
+
+.container {
+    padding: 65px 30px 0 30px;
 }
 
 header .container {
-
-        padding: 0 30px;
-  
+    padding: 0 30px;
 }
 
 header h1 {
@@ -43,10 +47,9 @@ header h1 {
 }
 
 .container {
-    width: 800px;
+    width: 750px;
     margin: 0 auto;
-    background-color: #fff;
-    padding: 10px 30px;
+
 }
 
 img {
@@ -68,7 +71,9 @@ input, select{
 }
 
 label {
-    display: inline-block;  
+    display: inline-block; 
+    font-size: 1.2em;
+    margin: 10px 5px;
 }
 
 input[type="checkbox"] {
@@ -77,6 +82,7 @@ input[type="checkbox"] {
 input[type="checkbox"] + label {
     display: inline-block;
     margin: 0px 5px;
+    overflow: hidden;
     width: 15px;
     height: 15px;
     border-radius: 4px;    
@@ -101,17 +107,59 @@ input[type="checkbox"] + label:hover {
 }
 
 
+#rtc-theme-selector {
 
+}
+
+
+#rtc-theme-selector input[type="radio"] {
+    display: none;
+}
+#rtc-theme-selector input[type="radio"] + label {
+    display: inline-block;
+    margin: 10px 0;
+    width: 174px;
+    height: 147px;
+    border-radius: 12px;    
+    cursor: pointer;
+    border: 5px solid white;
+    background-size: contain;
+    -webkit-transition: border-color 0.3s;
+    transition: border-color 0.3s;
+}
+#rtc-theme-selector input[type="radio"]:checked + label {
+    border: 5px solid #a8e0e0;
+}
+
+#rtc-theme-selector input[type="radio"] + label:hover {
+    border: 5px solid #96d4d4;
+}
+
+
+input#rtc-layout-ml[type="radio"] + label {
+    background-image: url("/images/icons/theme/message-left.png");
+}
+
+input#rtc-layout-mr[type="radio"] + label {
+    background-image: url("/images/icons/theme/message-right.png");
+}
+
+input#rtc-layout-mb[type="radio"] + label {
+    background-image: url("/images/icons/theme/message-bottom.png");
+}
 
 
 
 textarea {
-    width: 600px;
+    width: 570px;
+    height: 400px;
     margin-top: 4px;
     padding: 8px;
     font-size: 1.1em;
     border: 1px solid #dfdfdf;
 }
+
+rtc-add-layout-css
 
 select {
     background-color: white;
@@ -218,8 +266,6 @@ a.button {
     border-color: red;
 }
 
-
-
 .info {
     background-color: #f9f9f9;
 }
@@ -230,6 +276,17 @@ a.button {
     margin: 0;
 }
 
+
+.setting-description {
+    margin: 0 0px 10px 0;
+    width: 600px;
+    overflow: hidden;
+    padding: 16px;
+    font-weight: 100;
+    border: 1px solid #dde5e5;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
 
 
 .invalid {
@@ -245,13 +302,13 @@ a.button {
 
 .list li {
     list-style: none;
-
+    vertical-align: middle;
     padding: 0 10px;
     margin: 0;
 
 }
 
-.list li:nth-child(2n-1) {
+.list li:nth-child(2n) {
     background-color: #f8f8f8;
 }
 
@@ -266,6 +323,7 @@ a.button {
 .list li span {
     display: inline-block;
     padding: 15px 0;
+        vertical-align: middle;
 }
 
 .list li a {
@@ -273,13 +331,7 @@ a.button {
     font-weight: 100;
 }
 
-header {
-    height: 55px;   
-}
 
-header h1 {
-
-}
 
 nav#rtc-main-menu {
     float: right;
@@ -317,6 +369,7 @@ nav#rtc-main-menu > ul > li > a:hover {
 nav#rtc-main-menu > ul > li:hover > .sub-menu {
     z-index: 1;
     opacity: 1;
+    height: auto;
 }
 
 .sub-menu {
@@ -330,8 +383,9 @@ nav#rtc-main-menu > ul > li:hover > .sub-menu {
     list-style: none;
     z-index: -1;
     opacity: 0;
-    -webkit-transition: opacity 0.3s;
-    transition: opacity 0.3s;
+    height: 0;
+    -webkit-transition: opacity 0.3s, 0.3 height;
+    transition: opacity 0.3s, 0.3 height;
     overflow: hidden;
 }
 
@@ -377,4 +431,10 @@ nav#rtc-main-menu > ul > li:hover > .sub-menu {
 
 .hidden {
     display: none;
+}
+
+
+.message {
+    margin: 0;
+    padding: 0 !important;
 }

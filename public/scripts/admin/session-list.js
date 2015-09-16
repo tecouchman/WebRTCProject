@@ -15,9 +15,14 @@ $('.delete-button').click(function(event) {
                 if (result.status == 'ok') {
                     
                     $('#session' + sessionToDelete).hide(100, function() {
-                        $('#session' + sessionToDelete).remove();    
-                    })
+                        $('#session' + sessionToDelete).remove();  
+                        
+                        if ($('.session').length == 0) {
+                            $('#rtc-empty-message').show(100);
+                        }
+                    });
                     
+
                 } else {
                     alert(result.message);
                 }

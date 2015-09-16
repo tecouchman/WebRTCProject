@@ -1,6 +1,8 @@
 <div id="rtc-set-displayname-container" class="rtc-popup-container">
-    <h1>Set Your Display Name</h1>
-    <input id="rtc-displayname-input" type="text" />
-    <button type="button" id="rtc-displayname-submit">Save</button>
-    <button type="button" id="rtc-displayname-cancel">Cancel</button>
+    <h1>Display Name</h1>
+    <form>
+    <input id="rtc-displayname-input" type="text" value="<%= @displayName %>"/>
+    <button type="button" id="rtc-displayname-cancel" >Cancel</button>
+    <button type="submit" id="rtc-displayname-submit" >OK</button>
+    </form>
 </div>

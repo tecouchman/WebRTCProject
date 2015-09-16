@@ -1,0 +1,58 @@
+/* Base styles that determine the layout of the page */
+
+/*  Remove default margin on html.
+    'standalone' class means the rule only apllies when standalone   
+    layout is used. Will not affect user's page if the chat is
+    embedded.
+*/
+body.standalone {
+    margin: 0;
+}
+
+/* Styles for the main container when in fullscreen mode
+   Vendor prefixing of the full screem pseudo class
+   means the style has to be repeated.  */
+#rtc-container:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+}
+#rtc-container:-moz-full-screen {
+    width: 100%;
+    height: 100%;
+} 
+#rtc-container:-ms-fullscreen {
+    width: 100%;
+    height: 100%;
+}
+#rtc-container:fullscreen {
+    width: 100%;
+    height: 100%;
+}
+
+/* styles that determine the layout */
+/* message-left:
+        Message container is to the left of the screen
+        and video container is to the right */
+#rtc-container.message-left #rtc-video-container,
+#rtc-container.message-left #rtc-messages-container {
+    float: right;
+}
+/* message-right:
+        Message container is to the right of the screen
+        and video container is to the left */
+#rtc-container.message-right #rtc-video-container,
+#rtc-container.message-right #rtc-messages-container {
+    float: left;
+}
+
+/* message-bottom:
+        Message container is at the bottom of the screen
+        and video container is to the top */
+#rtc-container.message-bottom #rtc-video-container {
+        width: 100%;
+        height: 60%;
+}
+#rtc-container.message-bottom #rtc-messages-container {
+        width: 100%;
+        height: 40%;
+}

@@ -14,7 +14,7 @@ MyWebRTC.UI = (function (container) {
         streamCount = 0,
         avatars = {},
         srcTag,
-        attachedFile;
+        attachedFile
     
     // Shim for the fullscreen API
     document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
@@ -23,25 +23,27 @@ MyWebRTC.UI = (function (container) {
     
     var fullscreenButton = $('#rtc-btn-fullscreen'),
         popoutButton = $('#rtc-btn-popout'),
-        setDisplayName = $('#rtc-btn-set-displayname');
+        setDisplayName = $('#rtc-btn-set-displayname'),
+        popupContainer = $('#rtc-popup-area');
     
     // Default options values, which are used for any of the options
     // that are not set explicitly by the user.
-    var defaultOptions = {
+    var options = {
         'passwordRequired' : false, // Do not require a password to join
         'customisableId' : true, // Allow users to set custom Ids
         'filesharing' : true, // Enabled file sharing
         'maxFileSize' : 2000, // 2mb max file size
         'acceptedFiletypes' : '', // Accept all types
         'fullscreenEnabled' : true,
-        'popoutEnabled' : true
+        'popoutEnabled' : true,
+        'showAvatar': true,
+        'showDisplayName' : true
     }
     
     var init = function(opts) {
-        options = {};
         
         // Merge the users options with default options to create a full list of options
-        $.extend(options, defaultOptions, opts)
+        $.extend(options, options, opts)
         
         if (options.passwordRequired === true) {
             $('#rtc-password-container').removeClass('hidden');
@@ -80,6 +82,25 @@ MyWebRTC.UI = (function (container) {
 
         
     }
+    
+    var attachFile = function(file) {
+        attachedFile = file;
+        var trimmedText = file.name.length > 25 ? file.name.substr(0,22) + '...' : file.name;
+        
+        var fileAttachmentElem = $('#rtc-attachment');
+        fileAttachmentElem.children('span').text(trimmedText);
+        fileAttachmentElem.removeClass('hidden');
+    }
+    
+    $('#rtc-remove-attachment').click(function(){
+        removeAttachment();
+    });
+    
+    var removeAttachment = function() {
+        attachedFile = null;
+        var fileAttachmentElem = $('#rtc-attachment');
+        fileAttachmentElem.addClass('hidden');
+    }
 
     var htmlFileDragHandler = function (e) {
         e.stopPropagation();
@@ -91,7 +112,7 @@ MyWebRTC.UI = (function (container) {
                 break;
             case 'drop':
                 $('#rtc-file-drag-message').hide();
-                attachedFile = (e.originalEvent.target.files || e.originalEvent.dataTransfer.files)[0];
+                attachFile((e.originalEvent.target.files || e.originalEvent.dataTransfer.files)[0]);
                 break;
         }
     };
@@ -174,13 +195,9 @@ MyWebRTC.UI = (function (container) {
                 id: remotePeerId,
                 presenter: peerType == 'presenter'
         };
-        // Use ECT to render the video element
-        //var remoteVideo = renderer.render('partials/remote-video', srcData);
-        
-
             
         var container = $('<div id="remote' + remotePeerId + '" class="rtc-remote-video ' + peerType + '" >') ;
-        var testClass = $('<div>').addClass('test');
+        var rel = $('<div>').addClass('rtc-rel');
         var video = $('<video ' + srcTag +  '="' + ((srcTag == 'src') ? window.URL.createObjectURL(stream) : stream) + '" autoplay></video>');
         var controls = $('<div class="rtc-local-video-controls">'
         +'        <input type="checkbox" class="video-control video-option" id="rtc-stop-remote-video' + remotePeerId + '"  data-id="' + remotePeerId + '" checked />'
@@ -189,9 +206,9 @@ MyWebRTC.UI = (function (container) {
         +'        <label for="rtc-stop-remote-audio' + remotePeerId + '"></label>'
         +'    </div>');
         
-        testClass.append(video);
-        testClass.append(controls);
-        container.append(testClass);
+        rel.append(video);
+        rel.append(controls);
+        container.append(rel);
         
         // Append the video element to the passed in element
         videoContainer.append(container);
@@ -200,17 +217,19 @@ MyWebRTC.UI = (function (container) {
             $('#remote' + remotePeerId).addClass('video-disabled');
         }
 
-        setTimeout(function delayedCreateAvatar(){
-            var avatar = createAvatar(video);
-            avatars[remotePeerId] = avatar;
-        }, 1000);
+        if (options.showAvatar) {
+            setTimeout(function delayedCreateAvatar(){
+                var avatar = createAvatar(video);
+                avatars[remotePeerId] = avatar;
+            }, 1000);
+        }
         
         arrangeStreams();
     });
     
     $(MyWebRTC).on('RemoteVideoTrackToggled', function (evt, remotePeerId, enabled) {
         var remoteVideo = $('#remote' + remotePeerId);
-        console.log('enabled:'+enabled);
+
         if (enabled) {
             remoteVideo.removeClass('video-disabled');
         } else {
@@ -309,40 +328,56 @@ MyWebRTC.UI = (function (container) {
     
     // When the user sends a message
     $(MyWebRTC).on("MessageSent", function(evt, message) {
-        addMessage('local', message);
+        displayMessage('local', MyWebRTC.getDisplayName, message);
     });
-    
-    // When the user receieves a message
-    $(MyWebRTC).on('DownloadComplete', function(evt, fileDataURL, id) {
-        
-        
-        var downloadElem = $('#' + id.replace('.',''));
-        downloadElem.html('');
 
+
+    // When the user receieves a message
+    $(MyWebRTC).on('FileSendComplete', function(evt, senderId, fileId, file) {
+        var downloadElem = $('#' + fileId.replace('.',''));
+        downloadElem.html('');
+        
+        if (file.type.indexOf('image')) {
+            var img = $('<img>');
+            img.attr('src', fileDataURL);
+            downloadElem.append(img);
+        }
+        
+        var anchor = $('<a>').text('File ' + file.name + ' sent.');
+        downloadElem.append(anchor);
+        
+        scrollToMessagesBottom();
+    });
+                   
+    // When the user receieves a message
+    $(MyWebRTC).on('DownloadComplete', function(evt, senderId, fileId, fileDataURL) {
+        var downloadElem = $('#' + fileId.replace('.',''));
+        downloadElem.html('');
         
         if (fileDataURL.substr(5, 5) == 'image') {
             var img = $('<img>');
             img.attr('src', fileDataURL);
             downloadElem.append(img);
-        } else {
-            var anchor = $('<a>').text('Download').attr('download', id).attr('href',fileDataURL);
-            downloadElem.append(anchor);
         }
+        
+        var anchor = $('<a>').text('Download').attr('download', fileId).attr('href',fileDataURL);
+        downloadElem.append(anchor);
+        
+        scrollToMessagesBottom();
     });
+
     
-        // When a download starts
-    $(MyWebRTC).on('FileOfferRecieved', function(evt, sender, name, filesize) {
+    // When a download starts
+    $(MyWebRTC).on('FileOfferRecieved', function(evt, senderId, senderName, fileName, filesize) {
+        
         var downloadElem = $('<div>').addClass('rtc-message').addClass('remote').addClass('download');
-        downloadElem.attr('id', name.replace('.',''));
-        downloadElem.append($('<p>').append(sender + ' would like to send a file:'));
-        downloadElem.append($('<p>').addClass('rtc-download-name').append(name));
+        downloadElem.attr('id', fileName.replace('.',''));
+        downloadElem.append($('<p>').append(senderName + ' would like to send a file:'));
+        downloadElem.append($('<p>').addClass('rtc-download-name').append(fileName));
         
         var accept = $('<button>').text('Accept').addClass('rtc-soft-button');
         accept.click(function(event){
-            MyWebRTC.acceptFile(name);
-            downloadElem.fadeOut(200, 
-                function() { downloadElem.remove();
-            });
+            MyWebRTC.acceptFile(senderId, fileName);
         }) 
         var decline = $('<button>').text('Decline').addClass('rtc-soft-button');
         decline.click(function(event){
@@ -358,46 +393,105 @@ MyWebRTC.UI = (function (container) {
     });
     
     // When a download starts
-    $(MyWebRTC).on('DownloadStarted', function(evt, id) {
-        var downloadElem = $('<div>').addClass('rtc-message').addClass('remote').addClass('download');
-        downloadElem.attr('id', id.replace('.',''));
-        downloadElem.append($('<p>').addClass('rtc-download-name').append(id));
-        downloadElem.append($('<progress>').addClass('rtc-download-progress').attr('max', 100));
-        $('#rtc-messages').append(downloadElem);
+    $(MyWebRTC).on('DownloadStarted', function(evt, senderId, fileId) {
+        displayDownloadStarted(senderId, 'local', fileId);
     });
-
+    
+    // When an upload starts
+    $(MyWebRTC).on('FileSendStarted', function(evt, receiverId, fileId) {
+        console.log('sending file');
+        displayDownloadStarted('local', receiverId, fileId);
+    });
+    
+    var displayDownloadStarted = function(senderId, receiverId, fileId) {
+        console.log('sending file');
+        
+        var elemId = fileId.replace('.','');
+        var downloadElem = $('#' + elemId);
+        alert('elem: ' +downloadElem[0]);
+        
+        if (!downloadElem[0]) {
+            downloadElem = $('<div>').addClass('rtc-message')
+                                    .addClass(senderId == 'local' ? 'local' : 'remote')
+                                    .addClass('download')
+                                    .attr('id', elemId);
+            $('#rtc-messages').append(downloadElem);
+        }
+        downloadElem.html('');
+        var description = $('<p>').addClass('rtc-download-name');
+        if (senderId == 'local') {
+            description.append('Uploading ' + fileId + ' to ' + receiverId);//MyWebRTC.getPeers[receiverId].displayName);   
+        } else {
+            description.append('Downloading ' + fileId + ' from ' + senderId);//MyWebRTC.getPeers[senderId].displayName);
+        }
+        
+        downloadElem.append(description);
+        downloadElem.append($('<progress>').addClass('rtc-download-progress').attr('max', 100));
+        
+    }
+    
+    
+    $(MyWebRTC).on('FileSendProgress', function(evt, senderId, fileId, progress) {
+        console.log('FileSendProgress: ' +progress);
+        updateDownload(fileId, progress);
+    });
+    
+    var updateDownload = function(fileId, progress) {
+        var downloadElem = $('#' + fileId.replace('.','') + ' > progress');
+        downloadElem.attr('value',progress);
+    };
+    
     // When data is recieved for a download
-    $(MyWebRTC).on('DownloadProgress', function(evt, id, percent) {
-        var downloadElem = $('#' + id.replace('.','') + ' > progress');
-        downloadElem.attr('value',percent);
+    $(MyWebRTC).on('DownloadProgress', function(evt, senderId, fileId, progress) {
+        updateDownload(fileId, progress);
     });
     
     // When the user receieves a message
-    $(MyWebRTC).on('MessageReceived', function(evt, sender, message) {
-        addMessage(sender, message);
+    $(MyWebRTC).on('MessageReceived', function(evt, sender, displayName, message) {
+        displayMessage(sender, displayName, message);
     });
     
-    var addMessage = function(sender, message) {
+    var displayMessage = function(sender, displayName, message) {
         
+        // Determine if the message is from the local or remote peer
         var isLocal = sender == 'local';
-        
+        // Parse the message using emjione to replace emojis
+        // with images
         var message = emojione.toImage(message);
         
-        var messageElem = $('<div>').append($('<p>').append(message));
-        messageElem.addClass('rtc-message');
+        // Append the message to a div element, with the rtc-message class
+        var messageElem = $('<div>').addClass('rtc-message').append($('<p>').append(message));
         
+        // Generate a time stamp element
         var timeStampElem = getTimeStamp();
-        if (isLocal) {
-            messageElem.addClass('local');
-            timeStampElem.addClass('local');
-        } else {
-            messageElem.addClass('remote');
-            timeStampElem.addClass('remote');
-        }
-
-        var avatar = $('<div>').css('background-image', 'url("' + avatars[sender] + '")').addClass('avatar');
         
-        $('#rtc-messages').append(timeStampElem).append(avatar).append(messageElem);
+        // Based on the isLocal boolean, set a class
+        // to determine whether a message/timestamp element is remote or local
+        // - this allows different style for each, e.g. remote right aligned,
+        // local left aligned
+        var isLocalClass = isLocal? 'local' : 'remote';
+        messageElem.addClass(isLocalClass);
+        timeStampElem.addClass(isLocalClass);
+
+        
+        var container = $('#rtc-messages');
+        // append the time stamp to the messages element
+        container.append(timeStampElem);
+
+        if (options.showDisplayName && !isLocal) {
+            var displayNameElem = $('<div>').addClass('rtc-display-name')
+                                        .append(displayName);
+            container.append(displayNameElem);
+        }
+                
+        if (options.showAvatar && !isLocal) {
+            // Create an avatar div
+            var avatar = $('<div>').css('background-image', 'url("' + avatars[sender] + '")').addClass('rtc-avatar');
+            container.append(avatar);
+        }
+        
+        container.append(avatar).append(messageElem);
+        // Ensure the most recent message is visible
         scrollToMessagesBottom();
     }
     
@@ -426,7 +520,7 @@ MyWebRTC.UI = (function (container) {
             alert('File too large');   
             $('#rtc-input-file').parent('form')[0].reset();
         } else {
-            attachedFile = $('#rtc-input-file')[0].files[0];   
+            attachFile($('#rtc-input-file')[0].files[0]);   
         }
     })
     
@@ -438,9 +532,7 @@ MyWebRTC.UI = (function (container) {
         // If the user has entered a message then 
         // send it to the other peers
         if ($('#rtc-input-message').val() != '') {
-            
-            console.log('sending: ' + $('#rtc-input-message').val());
-            
+
             // Send the message is the text box
             MyWebRTC.sendMessage( $('#rtc-input-message').val() );
         }
@@ -450,7 +542,7 @@ MyWebRTC.UI = (function (container) {
         if (attachedFile != null) {
             // Send the message is the text box
             MyWebRTC.sendFile( attachedFile );
-            attachedFile = null;
+            removeAttachment();
         }
         
         $('#rtc-input-form')[0].reset();
@@ -463,6 +555,8 @@ MyWebRTC.UI = (function (container) {
         
         // Send the password to the server via the com submodule
         MyWebRTC.Com.submitPassword($('#rtc-password-input').val());
+        
+        return false;
     });
     
     $('#rtc-video-container').on('change', '.video-option', function(e){
@@ -491,7 +585,9 @@ MyWebRTC.UI = (function (container) {
     });
     
     container.on('click', '#rtc-displayname-cancel', function(e) {
+        e.preventDefault();
         $('#rtc-set-displayname-container').remove();
+        return false;
     });
 
     
@@ -515,7 +611,7 @@ MyWebRTC.UI = (function (container) {
                     message : 'Please try again later.'
                 };
         var popup = renderer.render('partials/popup', data);
-        container.append(popup);
+        popupContainer.append(popup);
     });
     
     var toggleFullscreen = function () {
@@ -565,8 +661,14 @@ MyWebRTC.UI = (function (container) {
     if (setDisplayName) {
         setDisplayName.click(function(e) {
 
-            var popup = renderer.render('partials/popup-displayname');
-            container.append(popup);
+            if ($('#rtc-set-displayname-container')[0]) {
+                return;
+            }
+            
+            var popup = renderer.render('partials/popup-displayname', {
+                displayName : MyWebRTC.getDisplayName()   
+            });
+            popupContainer.append(popup);
         }); 
     }
     
@@ -587,7 +689,7 @@ MyWebRTC.UI = (function (container) {
         });
         
    
-        var emoHtml = emojione.toImage(emoticonMenu.text());   
+        var emoHtml = emojione.toImage(emoticonMenu.html());   
         emoticonMenu.html(emoHtml); 
     }
     

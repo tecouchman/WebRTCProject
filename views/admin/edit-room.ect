@@ -47,10 +47,14 @@
         <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" <% if @room.hasCustomUserIds : %>checked<%end%> />
         <label for="rtc-add-room-custom-ids"></label>
     </fieldset>
+        
     <fieldset>
         <label>Theme</label>
+    
         <select id="rtc-add-room-theme" name="theme">
-            <option value="default">Default</option>
+            <% for theme in @themes : %>
+                <option value="<%- theme.id %>" <% if @room.theme == theme.id : %>selected<% end %> ><%= theme.themeName %></%></option>
+            <% end %>
         </select>
     </fieldset>
     <fieldset>

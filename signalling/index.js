@@ -8,14 +8,21 @@ var clients = {},
 // maps of room counts
 rooms = {};
 
-module.exports.set = function(http, db) {
+module.exports.set = function(http, db, session) {
     
     var io = require('socket.io')(http);
     var url = require('url');
     
+    
+    io.use(function(socket, next) {
+        session(socket.handshake, {}, next);
+    });
+    
     // Set up a listener for when a client connects (a user visits the page)
     io.on('connection', function(socket) {
 
+        console.log('session:' + socket.handshake.session.username );   
+        
         console.log('client connection');
 
         // TODO: socket.request.headers.referer is undocumented, maybe unreliable
@@ -28,7 +35,7 @@ module.exports.set = function(http, db) {
         if (!rooms[roomId])
             rooms[roomId] = 0
             
-        var session, room;
+        var session, room, theme;
 
         // Return an ID to the the new client
         socket.emit('IdGenerated', socket.id);
@@ -49,6 +56,12 @@ module.exports.set = function(http, db) {
                 db.Room.findOne({ roomId : session.roomId }, function(err, roomResult) {
                     room = roomResult;
                     onData();
+                    
+                    // Find the room in the database:
+                    db.Theme.findOne({ _id : roomResult.theme }, function(err, themeResult) {
+                        theme = themeResult;
+                        onData();
+                    });
                 });
                 
                 db.FileOptions.findOne({ roomId : session.roomId }, function(err, fileOptsResult) {
@@ -56,11 +69,12 @@ module.exports.set = function(http, db) {
                     onData();
                 });
             });
+    
 
             // When the room/session/iceServer data becomes available:
             function onData() {
 
-                if (session && room && iceServers && fileOptions) {
+                if (session && room && iceServers && fileOptions && theme) {
                     console.log('all data!');
                     console.log(room.name);
 
@@ -112,7 +126,9 @@ module.exports.set = function(http, db) {
                         'customisableId' : room.hasCustomUserIds,
                         'fileSharing' : room.hasFilesharing,
                         'fullscreenEnabled': room.fullscreenEnabled,
-                        'popoutEnabled': room.popoutEnabled
+                        'popoutEnabled': room.popoutEnabled,
+                        'showAvatar': theme.showAvatar,
+                        'showDisplayName' : theme.showDisplayName
                     }
                     
                     if (room.hasFilesharing) {
@@ -221,7 +237,11 @@ module.exports.set = function(http, db) {
                 sentAt: Date()
             });
             message.save(function(err) {
-                console.log('saved message.' + err.message);
+                if (err) {
+                    console.log('Saved message');
+                } else {
+                    console.error('Error saving message');
+                }
             }); 
         });
 

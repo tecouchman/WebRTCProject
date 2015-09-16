@@ -4,15 +4,15 @@
 
 <h1>Themes</h1>
 <ul id="theme-list" class="list">
-    <p class="info <% if @themes && @themes.length > 0 : %>hidden<%end%>">There are no themes available. To add one click the 'Create New Theme' button.</p>
+    <p id="rtc-empty-message" class="info <% if @themes && @themes.length > 0 : %>hidden<%end%>">There are no themes available. To add one click the 'Create New Theme' button.</p>
     <% if @themes : %>
         <% for theme in @themes : %>
-            <li id="theme<%= theme.themeName %>">
+            <li id="theme<%= theme.id %>" class="theme" >
                 <a href="/admin/edit_theme/<%= theme.themeName %>">
                     <span><%= theme.themeName %></span>
                     <span><%= theme.layoutName %></span>
                 </a>
-                <button class="delete-button button-red button-small" data-id="<%= theme.themeName %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
+                <button class="delete-button button-red button-small" data-id="<%= theme.id %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
                     <a class="button button-small" href="/admin/edit_theme/<%= theme.themeName %>" style="float: right"><img src="/images/icons/edit-white.png"></a>
             </li>
         <% end %>

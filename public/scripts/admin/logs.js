@@ -23,3 +23,11 @@ $('.delete-button').click(function(event) {
         });
     }
 });
+
+
+// Find each fo the message
+$('.message').each(function(index, message) {
+    // Parse the text using emojione to convert emojis to images
+    // and put the generated html back into the message span.
+    $(message).html(emojione.toImage($(message).text()));
+});

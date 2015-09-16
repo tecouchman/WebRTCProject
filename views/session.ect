@@ -3,7 +3,7 @@
 <% else : %>
     <% extend 'session-embed' %>
 <% end %>
-<div id="rtc-container">
+<div id="rtc-container" class="<%- @layout %> <% if @mobile : %>mobile<% end %>" >
     <div id="rtc-video-container">
         <div id="rtc-video-container-center"></div>
     </div>
@@ -12,11 +12,17 @@
         <form id="rtc-input-form">
             <div id="rtc-file-drag-message">Drop file here to attach to message</div>
             <input id="rtc-input-message" type="text" disabled />
-            <button id="rtc-add-emoticon" class="rtc-message-icon" type="button">
-                <ul id="rtc-emoticon-menu">:grinning::grin::joy::smiley::smile::sweat_smile::laughing::innocent::wink::blush::yum::relieved::heart_eyes::sunglasses::smirk::neutral_face::expressionless::unamused::sweat::pensive::confused::confounded::kissing_heart::stuck_out_tongue::disappointed::worried::angry::cry::sob::thumbsup:
-                </ul>
+            <div id="rtc-add-emoticon" class="rtc-message-icon" type="button">
+                <div id="rtc-emoticon-menu">:grinning::grin::joy::smiley::smile::sweat_smile::laughing::innocent::wink::blush::yum::relieved::heart_eyes::sunglasses::smirk::neutral_face::expressionless::unamused::sweat::pensive::confused::confounded::kissing_heart::stuck_out_tongue::disappointed::worried::angry::cry::sob::thumbsup:
+                    <p>Emoji provided free by <a href="http://emojione.com/">Emoji One</a></p>
+                </div>
+            </div>
+            <button id="rtc-add-file" class="rtc-message-icon hidden" type="button">
             </button>
-            <button id="rtc-add-file" class="rtc-message-icon hidden"  type="button"></button>
+            <div id="rtc-attachment" class="hidden">
+                <span></span>
+                <input id="rtc-remove-attachment" type="button" value="X"/>
+            </div>
             <input id="rtc-input-file" type="file" />
             <button id="rtc-send" disabled>Send</button>
         </form>
@@ -26,22 +32,16 @@
         <button id="rtc-btn-popout" class="hidden">Open in popup</button>
         <button id="rtc-btn-set-displayname" class="hidden">Open in popup</button>
     </div>
-    <div id="rtc-password-container" class="rtc-popup-container hidden">
-        <h1>This room is password protected</h1>
-        <p>Please enter the password:</p>
-        <form id="rtc-password-form">
-            <span id="rtc-password-incorrect-label" class="hidden">Password incorrect. Please try again</span>
-            <input id="rtc-password-input" type="password" />
-            <button type="submit" id="rtc-password-submit">Join</button>
-        </form>
-    </div>
-    <div id="rtc-username-container" class="rtc-popup-container hidden">
-        <h1>Set your username</h1>
-        <form id="rtc-password-form">
-            <span id="rtc-password-incorrect-label" class="hidden">Password incorrect. Please try again</span>
-            <input id="rtc-password-input" type="password" />
-            <button type="submit" id="rtc-password-submit">Join</button>
-        </form>
+    <div id="rtc-popup-area">
+        <div id="rtc-password-container" class="rtc-popup-container hidden">
+            <h1>This room is password protected</h1>
+            <p>Please enter the password:</p>
+            <form id="rtc-password-form">
+                <span id="rtc-password-incorrect-label" class="hidden">Password incorrect. Please try again</span>
+                <input id="rtc-password-input" type="password" />
+                <button type="submit" id="rtc-password-submit">Join</button>
+            </form>
+        </div>
     </div>
 </div>
 

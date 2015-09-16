@@ -12,19 +12,50 @@
         <input id="rtc-add-theme-name" type="text" name="themeName" value="<%= @theme?.themeName %>" />
     </fieldset>
     <fieldset>
-        <label>Layout Name</label>
-        <input id="rtc-add-layout-name" type="text" name="layoutName" value="<%= @theme?.layoutName %>" />
-    </fieldset>
+        <label>Layout</label>
+        <p class="setting-description">Rooms that contain both audio and video can be arranged in the following ways. Rooms with only video or only audio
+        will only have the relevant section.</p>
+        <div id="rtc-theme-selector">
+            <input id="rtc-layout-ml" type="radio" name="layoutName" value="message-left" <% if @theme?.layoutName == "message-left" : %>checked<%end%>/>
+            <label for="rtc-layout-ml" ></label>
 
-    <h2>Custom Css</h2>
-    <input id="rtc-has-custom-css" type="checkbox" name="hasCustomCss" <% if @theme?.hasCustomCss : %>checked<% end %> />
-    <label for="rtc-has-custom-css" ></label>
-    
-    <div id="rtc-custom-css-section" class="info <% if !@theme?.hasCustomCss : %>hidden<% end %>">
-        <fieldset>
-            <p>Custom CSS</p>
-            <textarea id="rtc-add-layout-css" name="customCss"><%- @customCss %></textarea>
-        </fieldset>
-    </div>
+            <input id="rtc-layout-mr" type="radio" name="layoutName" value="message-right" <% if @theme?.layoutName == "message-right" : %>checked<%end%>/>
+            <label for="rtc-layout-mr" ></label>
+
+            <input id="rtc-layout-mb" type="radio" name="layoutName" value="message-bottom" <% if @theme?.layoutName == "message-bottom" : %>checked<%end%>/>
+            <label for="rtc-layout-mb" ></label>
+        </div>
+        
+    </fieldset>
+    <fieldset>
+        <input id="rtc-include-mobile" type="checkbox" name="includeMobileLayout" <% if @theme?.includeMobileLayout : %>checked<% end %> />
+        <label for="rtc-include-mobile" ></label>
+        <label for="rtc-include-mobile" >Mobile Layout</label>
+        <p class="setting-description">Switch to vertical layout on restricted-width displays.</p>
+
+    </fieldset>
+    <fieldset>
+        <input id="rtc-show-display-name" type="checkbox" name="showDisplayName" <% if @theme?.showDisplayName : %>checked<% end %> />
+        <label for="rtc-show-display-name" ></label>
+        <label for="rtc-show-display-name">Show Display Names</label>
+        <p class="setting-description">Display names are shown next to message users send.</p>
+    </fieldset>
+    <fieldset>
+        <input id="rtc-show-avatar" type="checkbox" name="showAvatar" <% if @theme?.showAvatar : %>checked<% end %> />
+        <label for="rtc-show-avatar" ></label>
+        <label for="rtc-show-avatar">Show Avatars</label>
+        <p class="setting-description">Screen captures of users webcam feeds are shown next to message users send.</p>
+    </fieldset>
+    <fieldset>
+        <input id="rtc-has-custom-css" type="checkbox" name="hasCustomCss" <% if @theme?.hasCustomCss : %>checked<% end %> />
+        <label for="rtc-has-custom-css" class="custom" ></label>      
+        <label for="rtc-has-custom-css" >Custom Css</label>  
+        <div id="rtc-custom-css-section" class="setting-description <% if !@theme?.hasCustomCss : %>hidden<% end %>">
+            <fieldset>
+                <span>Styles entered below will replace the default styles.</span>
+                <textarea id="rtc-add-layout-css" name="customCss"><%- @customCss %></textarea>
+            </fieldset>
+        </div>
+    </fieldset>
     <button id='rtc-add-theme-button' type="submit">Save Theme</button>
 </form>

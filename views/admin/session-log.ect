@@ -1,6 +1,5 @@
 <% extend 'admin/layout' %>
     
-<button class="image-button" data-id="<%= '' %>" style="float: right;"><span>Export to File</span> <img src="/images/icons/delete-white.png"></button>
 <button type="submit" class="delete-button button-red image-button" data-id="<%= @sessionId %>" style="float: right;"><span>Clear Log</span> <img src="/images/icons/delete-white.png"></button>
 <h1>Messages</h1>
 <ul id="session-list" class="list">
@@ -8,7 +7,7 @@
     <% if @messages : %>
         <% for message in @messages : %>
                 <li>
-                    <span class="log-timestamp"><%= message.sentAt.toJSON().slice(0, 19).replace('T',' ') %></span><span class="log-username"> <%= message.userName %>:</span> <span><%- message.message %></span>
+                    <span class="log-timestamp"><%= message.sentAt.toJSON().slice(0, 19).replace('T',' ') %></span><span class="log-username"> <%= message.userName %>:</span> <span class="message"><%- message.message %></span>
                 </li>
         <% end %>
     <% end %>

@@ -173,7 +173,6 @@
     
     // Method to set up a peer connection to remote peer
     var connect = function(remotePeerId) {
-        console.log('Initiating connection to peer: ' + remotePeerId);
         
         // Create a  new Peer object, pass in a new PeerConnecion
         // and store in the peers map.
@@ -182,7 +181,6 @@
         
         // Create an offer
         peers[remotePeerId].createOffer(function(offer) {
-            console.log('offer created');
             // Trigger the CreateOffer event so subscribers are updated.
             $(MyWebRTC).trigger("CreateOffer", [ remotePeerId, displayName, offer ]);
         });
@@ -199,23 +197,34 @@
         if (options.fileSharing) {
             $(connection).on('MessageReceived', onMessageReceived);
             $(connection).on('FileOffer', onFileOffer);
-            $(connection).on('FileAccept', onFileAccept);
-            $(connection).on('ChunkRecieved', function(evt, data) {
-                console.log(data);
-                // Else hand them to the down load manager
-                downloadManager.updateDownload(data);
-
-            });
             
+            // Relay file updates
+            $(connection).on("DownloadStarted", function(event, fileId) {  
+                $(MyWebRTC).trigger("DownloadStarted", [ connection.id, fileId ]);                 
+            });
+            $(connection).on('DownloadComplete', function(event, fileId, file) {  
+                $(MyWebRTC).trigger("DownloadComplete", [ connection.id, fileId, file ]);                
+            });
+            $(connection).on("DownloadProgress", function(event, fileId, progress) {  
+                $(MyWebRTC).trigger("DownloadProgress", [ connection.id, fileId, progress ]);            
+            });
+            $(connection).on("FileSendStarted", function(event, fileId) {  
+                $(MyWebRTC).trigger("FileSendStarted", [ connection.id, fileId ]);                 
+            });
+            $(connection).on('FileSendComplete', function(event, fileId, file) {  
+                $(MyWebRTC).trigger("FileSendComplete", [ connection.id, fileId, file ]);                
+            });
+            $(connection).on("FileSendProgress", function(event, fileId, progress) {  
+                console.log('got progress');
+                $(MyWebRTC).trigger("FileSendProgress", [ connection.id, fileId, progress ]);            
+            });
         }
     }
     
     // handler for when a Connection recieves a message
     var onMessageReceived = function(event, data) {
-        console.log('this happened');
-        console.log('id:' + event.target.id);
-        console.log('data: ' + data);
-        $(MyWebRTC).trigger("MessageReceived", [ event.target.id, data ]);
+
+        $(MyWebRTC).trigger("MessageReceived", [ event.target.id, event.target.displayName, data ]);
     }
     
     // handler for when a Connection recieves a message
@@ -228,7 +237,7 @@
         };
         
         // Then trigger a fileOfferRecieved event
-        $(MyWebRTC).trigger("FileOfferRecieved", [ event.target.displayName, name, size ]);
+        $(MyWebRTC).trigger("FileOfferRecieved", [ event.target.id, event.target.displayName, name, size ]);
     }
      
     // handler for when a Connection recieves a message
@@ -279,26 +288,14 @@
         $(MyWebRTC).trigger('PeerDisconnected', [ remotePeerId, peerName ]);
     }    
     
-    var acceptFile = function(name) {
-        var sender = fileOffers[name].sender;
-
-        peers[sender].send({ type : "fileAccept", data: {name : name } })
+    // When the user accepts a file, relay the request to the relevant connection
+    var acceptFile = function(senderId, fileName) {
+        peers[senderId].acceptFileOffer(fileName);
     }
         
     var fileOfferAccepted = function(target, name) {
 
-        if (fileOffers[name]) {
-            
-            var file = fileOffers[name].file;
-            // Use the file submodile to read the file as a data URL, then
-            // Send the file once the onLoad callback is called.
-            MyWebRTC.File.readFileAsDataURL(file, function(event){
-                // Send the file using the send file string method
-                sendFileString(target, event.target.result, file.name, event.target.result.length);
-            });
-        }
     }
-    
     
     // Method by which remote offers can be passed to the local MyWebRTC object
     var addOffer =  function(remotePeerId, peerDisplayName, peerType, offer) {
@@ -343,7 +340,6 @@
         
         // Loop through each of the peers
         $.map(peers, function(connection, key) {
-            console.log('Sending a message to a peer: ' + connection.id);
             connection.sendMessage(sanitizedMessage);
         });
     };
@@ -359,83 +355,15 @@
             if (file == null)
                 return;
             
-            fileOffers[file.name] = {
-                sender: 'local',
-                name: file.name,
-                size: file.size,
-                file: file
-            };
-            offerFile(file);
+            // Loop through each of the peers
+            $.map(peers, function(peer,key) {
+                // Send the data to the peer connection, with the type 'message'
+                peer.sendFile(file);
+            });
         }
 
     };
     
-    // Send a message to peers inform them you'd like to send a file
-    var offerFile = function(file) {
-        
-        var data = {
-            name: file.name,
-            size: file.size
-        }
-        
-        // Loop through each of the peers
-        $.map(peers, function(peer,key) {
-            // Send the data to the peer connection, with the type 'message'
-            peer.send({ type : "fileOffer", data : data });
-        });
-                      
-    }
-    
-    // Send a file that has been encoded as a string
-    var sendFileString = function(recipient, text, id, size) {
-            var chunkLength = 1000;
-            var data = {};
-        
-            // Store the name and size of the file
-            // in the data object
-            data.id = id;
-            data.size = size;
-            
-            // if the file is still large than the length of chunks being send
-            // then spilice of a chunk sized piece to send
-            if (text.length > chunkLength) {
-                data.message = text.slice(0, chunkLength);
-                data.last = false;
-            } else {
-                // If less than a chunk is left, send it and set data.last
-                // to true so the recipient knows there's nothing left to come.
-                data.message = text;
-                data.last = true;
-            }
-
-            console.log('sending chunk of ' + id + ' to ' + recipient);
-            peers[recipient].send({ type : "file", data : data });
-        
-            /*// Loop through each of the peers
-            $.map('peers',function(peer, key) {
-                // Send the data to the peer connection, with the type 'message'
-                peer.send(JSON.stringify({ type : "file", data : data }));
-            });*/
-            
-           /* // Loop through each of the peers
-           $.map(peers, function(obj, key) {
-                console.log('Sending a file to a peer');
-                // If their send data channel is open:
-                if (obj.peerConnection.sendDataChannel.readyState === 'open') {
-                    // Send the data to the peer connection, with the type 'message'
-                    obj.peerConnection.sendDataChannel.send(JSON.stringify({ type : "file", data : data }));
-                }
-            });*/
-            
-            // Set text to the remanining data
-            var remainingDataURL = text.slice(data.message.length);
-            // If there is still some to send, recall this method.
-            if (remainingDataURL.length) {
-                setTimeout(function() {
-                    sendFileString(recipient, remainingDataURL, id, size);
-                }, 500);
-            }
-    }
     
     // Escape all characters that are part of HTML to ensure
     // HTML cannot be passed to remote peers.
@@ -447,31 +375,6 @@
               .replace('"','&quot;')
               .replace("'",'&#39;');
     }
-
-    
-    var downloadManager = {
-        
-        // Array of downloads
-        downloads: {},
-        updateDownload: function (data) {
-            
-            if (!this.downloads[data.id]) {
-                this.downloads[data.id] = [];
-                $(MyWebRTC).trigger("DownloadStarted", [ data.id ]);
-            }
-            this.downloads[data.id].push(data.message);
-            
-
-            var progress = this.downloads[data.id].join('').length / data.size * 100;
-            $(MyWebRTC).trigger("DownloadProgress", [ data.id, progress ]);
-
-            if (data.last) {
-                $(MyWebRTC).trigger("DownloadComplete", [ this.downloads[data.id].join(''), data.id ]);
-                delete(this.downloads[data.id]);
-            }
-        }
-        
-    }
     
     // Public methods / members:
     var MyWebRTC = {
@@ -481,6 +384,7 @@
         close : close,
         getPeers : function() { return peers },
         setDisplayName : setDisplayName,
+        getDisplayName: function() { return displayName; },
         connect : connect,
         removePeer : removePeer,
         addOffer : addOffer,
@@ -489,7 +393,7 @@
         sendMessage : sendMessage,
         sendFile : sendFile,
         acceptFile : acceptFile,
-        setPeerDisplayName : function(id, displayName) { console.log('passing on name change:' +displayName); peers[id].setDisplayName(displayName); },
+        setPeerDisplayName : function(id, displayName) { peers[id].setDisplayName(displayName); },
         PeerConnection: PeerConnection,
         IceCandidate: IceCandidate,
         SessionDescription : SessionDescription,

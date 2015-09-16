@@ -1,16 +1,20 @@
-module.exports.set = function(app, passport, db) {
-
-    // Routing requiest for a chat room
-    app.get('/room/:sessionId', function(req, res) {
+module.exports = function(app, passport) {
+      
+    
+    var db = app.get('db');
+    
+    exports = {};
+    
+    var renderRoom = function(req, res) {
 
         // Find the session in the database based on the sessionId passed by the user
         db.Session.findOne({ url : req.params.sessionId }, function(err, session) {
             
             // If err or session not found, render relevant error pages
             if (err) {
-                renderError(res, 'An Error Ocurred','Please check the url and try again.');
+                renderError(res, 'An Error Ocurred','Please check the address and try again.');
             } else if (!session) {
-                renderError(res, 'Chat session not found', 'Please check the url and try again.');
+                renderError(res, 'Chat session not found', 'Please check the address and try again.');
             } else {
             
                 // Find the room for the requested session
@@ -18,13 +22,13 @@ module.exports.set = function(app, passport, db) {
 
                     // If err or room not found render relevant error messages
                     if (err) {
-                        renderError(res, 'An Error Ocurred','Please check the url and try again.');
+                        renderError(res, 'An Error Ocurred','Please check the address and try again.');
                     } else if (!room) {
                         renderError(res, 'Chat session not found', 'Please check the url and try again.');
                     }
 
-                    // Find the them for the current room
-                    db.Theme.findOne({ themeName: room.themeName }, function(err, theme) {
+                    // Find the theme for the current room
+                    db.Theme.findOne({ _id: room.theme }, function(err, theme) {
 
                         var cssUrl = '';
                         // if the theme is found and it has custom css then generate the url to the css class
@@ -33,9 +37,12 @@ module.exports.set = function(app, passport, db) {
                         } else {
                             cssUrl = 'default.css';   
                         }
+                        
 
                         // Render the sessions
                         res.render('session', {
+                            layout: theme.layoutName,
+                            mobile: theme.includeMobileLayout,
                             standalone: true,
                             scripts: [  '/socket.io/socket.io.js',
                                         '/scripts/jquery.min.js',
@@ -49,9 +56,10 @@ module.exports.set = function(app, passport, db) {
                                         '/scripts/Client.js',
                                         '//cdn.jsdelivr.net/emojione/1.5.0/lib/js/emojione.min.js'
                                      ],
-                            styles: [  '/styles/' + cssUrl, 
-                                    '/styles/mobile.css',
-                                    '//cdn.jsdelivr.net/emojione/1.5.0/assets/css/emojione.min.css'
+                            styles: [  '/styles/base.css',
+                                        '/styles/' + cssUrl, 
+                                        '/styles/mobile.css',
+                                        '//cdn.jsdelivr.net/emojione/1.5.0/assets/css/emojione.min.css'
                                  ]
                         });
 
@@ -61,7 +69,9 @@ module.exports.set = function(app, passport, db) {
             }
 
         });
-    });
+    };
+    
+    exports.renderRoom = renderRoom;
     
     // Method to render the error page, with custom messages
     var renderError = function renderInfo(res, title, message) {
@@ -70,5 +80,9 @@ module.exports.set = function(app, passport, db) {
             message: message
         });
     };
+    
+    return exports;
+    
+
     
 }

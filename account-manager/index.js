@@ -39,7 +39,7 @@ module.exports.set = function(_passport, _db) {
     module.exports.checkAccount = function(callback) {
         db.User.findOne({}, function(err, user) {
             // TODO: remove !, this is just for testing
-            if (!user) {
+            if (user) {
                 callback(true);   
             } else {
                 callback(false);   
