@@ -11,24 +11,24 @@
         <input id="rtc-add-room-max-users" type="number" name="maxUsers" value="<%= @room.maxUsers %>" />
     </fieldset>
     <fieldset>
-        <label>Video</label>
         <input id="rtc-add-room-video" type="checkbox" name="hasVideo" <% if @room.hasVideo : %>checked<%end%> />
         <label for="rtc-add-room-video"></label>
+        <label for="rtc-add-room-video">Video</label>
     </fieldset>
     <fieldset>
-        <label>Audio</label>
         <input id="rtc-add-room-audio" type="checkbox" name="hasAudio" <% if @room.hasAudio : %>checked<%end%> />
         <label for="rtc-add-room-audio"></label>
+        <label for="rtc-add-room-audio">Audio</label>
     </fieldset>
     <fieldset>
-        <label>Messaging</label>
         <input id="rtc-add-room-messaging" type="checkbox" name="hasMessaging" <% if @room.hasMessaging : %>checked<%end%> />
         <label for="rtc-add-room-messaging"></label>
+        <label for="rtc-add-room-messaging">Messaging</label>
     </fieldset>
     <fieldset>
-        <label>File Sharing</label>
         <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" <% if @room.hasFilesharing : %>checked<%end%> />
         <label for="rtc-add-room-filesharing"></label>
+        <label for="rtc-add-room-filesharing">File Sharing</label>
     </fieldset>
         <div id="rtc-file-sharing-section" class="info <% if !@room.hasFilesharing : %>hidden<% end %>">
             <fieldset>
@@ -43,44 +43,47 @@
             </fieldset>
         </div>
     <fieldset>
-        <label>Custom Usernames</label>
         <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" <% if @room.hasCustomUserIds : %>checked<%end%> />
         <label for="rtc-add-room-custom-ids"></label>
+        <label for="rtc-add-room-custom-ids">Custom Usernames</label>
+        <div class="info">Allow users to set a custom display name</div>
     </fieldset>
         
     <fieldset>
         <label>Theme</label>
-    
         <select id="rtc-add-room-theme" name="theme">
             <% for theme in @themes : %>
-                <option value="<%- theme.id %>" <% if @room.theme == theme.id : %>selected<% end %> ><%= theme.themeName %></%></option>
+                <option value="<%- theme.id %>" <% if @room.theme == theme.id : %>selected<% end %> ><%= theme.themeName %></option>
             <% end %>
         </select>
     </fieldset>
     <fieldset>
-        <label>Record Audio</label>
+        
         <input id="rtc-add-room-record-audio" type="checkbox" name="recordAudio"  <% if @room.recordAudio : %>checked<%end%> />
         <label for="rtc-add-room-record-audio"></label>
+        <label for="rtc-add-room-record-audio">Record Audio</label>
     </fieldset>
     <fieldset>
-        <label>Record Video</label>
         <input id="rtc-add-room-record-video" type="checkbox" name="recordVideo" <% if @room.recordVideo : %>checked<%end%>  />
         <label for="rtc-add-room-record-video"></label>
+        <label for="rtc-add-room-record-video">Record Video</label>
     </fieldset>
     <fieldset>
-        <label>Log Messages</label>
         <input id="rtc-add-room-log-messages" type="checkbox" name="logMessages" <% if @room.logMessages : %>checked<%end%> />
         <label for="rtc-add-room-log-messages"></label>
+        <label for="rtc-add-room-log-messages">Log Messages</label>
     </fieldset>
     <fieldset>
-        <label>Fullscreen</label>
         <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" <% if @room.fullscreenEnabled : %>checked<%end%> />
         <label for="rtc-add-room-fullscreen"></label>
+        <label for="rtc-add-room-fullscreen">Fullscreen</label>
     </fieldset>
-    <label>Allow Popout</label>
-        <div class="info">Allow users to open the chat room in a popup window</div>
         <input id="rtc-add-room-popout" type="checkbox" name="popoutEnabled" <% if @room.popoutEnabled : %>checked<%end%> />
         <label for="rtc-add-room-popout"></label>
+        <label for="rtc-add-room-popout">Allow Popout</label>
+        <div class="info">Allow users to open the chat room in a popup window</div>
     </fieldset>
+    <br />
     <button id='rtc-add-room-button' type="submit">Save Changes</button>
+    <a type="submit" href="/admin/rooms" class="button-red" ><span>Cancel</span></a>
 </form>

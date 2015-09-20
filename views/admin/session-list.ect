@@ -1,5 +1,6 @@
 <% extend 'admin/layout' %>
-<a class="button" href="/admin/add_session" style="float: right">Start New Session</a>
+<a class="button image-button" href="/admin/add_session" style="float: right"><span>Start New Session</span> <img src="/images/icons/add-white.png"></a>
+
 <h1>Sessions</h1>
 <ul id="session-list" class="list">
     <p id="rtc-empty-message" class="info <% if @sessions && @sessions.length > 0 : %>hidden<%end%>">There are no active sessions</p>

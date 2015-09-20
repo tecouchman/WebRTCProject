@@ -1,13 +1,22 @@
 <% extend 'admin/layout' %>
-<a class="button image-button" href="/admin/add_theme" style="float: right">
+    
+<% if @wizard: %>
+    <% include 'admin/partials/wizard', { 'wizard': @wizard } %>    
+<% end %>
+    
+<a class="button image-button" href="/admin/add_theme<% if @wizard: %>?wizard=<%= @wizard %><% end %>" style="float: right">
 <span>Create New Theme</span> <img src="/images/icons/add-white.png"></a>
 
 <h1>Themes</h1>
 <ul id="theme-list" class="list">
     <p id="rtc-empty-message" class="info <% if @themes && @themes.length > 0 : %>hidden<%end%>">There are no themes available. To add one click the 'Create New Theme' button.</p>
     <% if @themes : %>
+        <% @firstElem = true %>
         <% for theme in @themes : %>
             <li id="theme<%= theme.id %>" class="theme" >
+                <% if @wizard: %>
+                    <input type="radio" class="inline-input" name="selectedTheme" value="<%= theme.themeName %>" <% if @firstElem: %>checked<% @firstElem=false %><% end %> />
+                <% end %>
                 <a href="/admin/edit_theme/<%= theme.themeName %>">
                     <span><%= theme.themeName %></span>
                     <span><%= theme.layoutName %></span>
@@ -18,3 +27,9 @@
         <% end %>
     <% end %>
 </ul>
+            
+<% if @wizard: %>
+    <a class="button" id="rtc-wizard-to-room" >Next</a>
+    <script src="/scripts/jquery.min.js"></script>
+    <script src="/scripts/admin/wizard.js"></script>
+<% end %>

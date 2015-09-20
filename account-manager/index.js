@@ -16,26 +16,6 @@ module.exports.set = function(_passport, _db) {
         adminAccount.save(callback);
     }
     
-    module.exports.sendPasswordResetEmail = function(username, callback) {
-    
-        //async.waterfall
-        
-            var directTransport = require('nodemailer-direct-transport');
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'webrtcaddress@gmail.com',
-                    pass: 'webrtcPassword'
-                }
-            });
-            transporter.sendMail({
-                from: 'tecouchman@gmail.com',
-                to: 'tcouchman01@qub.ac.uk',
-                subject: 'Password Reset',
-                text: 'Password reset info would be here'
-            });
-    }
-    
     module.exports.checkAccount = function(callback) {
         db.User.findOne({}, function(err, user) {
             // TODO: remove !, this is just for testing

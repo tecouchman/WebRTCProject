@@ -1,17 +1,28 @@
+/*
+    Admin Controller.
+    Handles requests for the admin section
+    
+    @author Tom Couchman
+*/
+
+
 module.exports = function(app, db) {
         
     var url = require('url'),
-        nodemailer = require('nodemailer'),
         async = require('async'),
         crypto = require('crypto'),
-        fs = require('fs');
+        emailer = require(app.get('root') + '/emailer')(app.get('sendEmailAddress'),app.get('sendEmailPassword'));
     
     
+    // Object to be returned to the caller,
+    // will provide access to various published methods.
     var exports = {};
     
     // Listener for when a user request the login page
     exports.renderLogin = function renderLogin(req, res) {
 
+        res.locals.showTests = true;
+        
         // Render the page using ECT middleware.
         // Pass in the req.flash message if there is one 
         // (will be when a failed login attempt has been made)
@@ -55,7 +66,6 @@ module.exports = function(app, db) {
             // Find the user with the submitted email address
             db.User.findOne({ emailAddress: req.body.email }, function(err, user) {
                 
-
                 if (err) {
                     console.log('err getting user');
                     req.flash('err','An error occurred. Please try again later.'); 
@@ -66,90 +76,103 @@ module.exports = function(app, db) {
                     res.redirect('/admin/request_password_reset');
                 } else {
                     
-                    console.log('adding token to user');
-                    user.passwordResetToken = token;
-                    user.passwordResetTokenExpiry = Date.now() + 3600000; 
-                    user.save(function(err) {
-                        sendResetEmail(user, token, function(err) {
-                            if (err) {
-                                req.flash('err','Email could not be sent. Please try again later'); 
-                            } else {
-                                req.flash('info','Email sent. Please check your inbox for you password reset link.');
-                            }
-                            res.redirect('/admin/request_password_reset');
-                        });
+                    console.log('adding token to user: '+ user.id);
                     
+                    db.PasswordReset.findOne({ userId: user.id }, function(err, passwordReset) {
+                    
+                        // if a reset was not found for this user, create a new one
+                        if (!passwordReset) {
+                            passwordReset = new db.PasswordReset({
+                                userId: user.id,
+                                resetToken: token,
+                                resetTokenExpiry: Date.now() + 7200000
+                            });   
+                        } else {
+                            // if already exists, just update.
+                            passwordReset.resetToken = token;
+                            passwordReset.resetTokenExpiry = Date.now() + 7200000;
+                        }
+
+                        passwordReset.save(function(err) {
+
+                            
+                        var subject = 'MyWebRTC Password Reset';
+                        var body = 'To reset your password click the following link:\n' + 
+            'http://' + req.headers.host + '/admin/reset_password/' + token +
+            '\n\nIf you did not request a password reset, please ignore this email.';
+                            
+                        emailer.send(user.emailAddress, subject, body, function(err) {
+                                if (err) {
+                                    req.flash('err','Email could not be sent. Please try again later'); 
+                                } else {
+                                    req.flash('info','Email sent. Please check your inbox for you password reset link.');
+                                }
+                                res.redirect('/admin/request_password_reset');
+                            });
+
+                        });
                     });
-   
                 }
                 
             });
         });
         
                 
-        var sendResetEmail = function (user, token, callback) {
-                var transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: 'webrtcaddress@gmail.com',
-                        pass: 'webrtcPassword'
-                    }
-                });
-                transporter.sendMail({
-                    from: 'no-reply@' + req.headers.host,
-                    to: user.emailAddress,
-                    subject: 'MyWebRTC Password Reset',
-                    text: 'You are receiving this email because you have requested a password reset from ' + req.headers.host + '/admin/request_password_reset\n\n' +
-                    'Click the following link to reset your password:\n\n' + 
-                    'http://' + req.headers.host + '/admin/reset_password/' + token
-                }, function(err, info) {
-                    callback(err);
-                });
-        }
+
              
     };
     
     // Listener for when a user request the login page
     exports.renderPasswordReset = function renderPasswordReset(req, res) {
 
-        db.User.findOne({ passwordResetToken: req.params.token, 
-                      passwordResetTokenExpiry: { $gt : Date.now() } },
-                    function(err, user) {
+        db.PasswordReset.find({}, function(err, results) {
+            console.log('results: ' + results);
+        });
+        
+        console.log('req token: ' + req.params.token);
+        
+        db.PasswordReset.findOne({ resetToken: req.params.token, 
+                      resetTokenExpiry: { $gt : Date.now() } },
+                    function(err, passwordReset) {
             if (err) {
                 req.flash('err','Something went wrong. Please try again later');
-            } else if (!user) {
+            } else if (!passwordReset) {
                 req.flash('err','Invalid token');
             } 
             res.render('admin/reset-password', {
                 messages: req.flash(),
+                token: req.params.token
             });
         });
     };
     
     // Listener for when a user request the login page
     exports.resetPassword = function resetPassword(req, res) {
-
-        db.User.findOne({ passwordResetToken: req.params.token, 
-                      passwordResetTokenExpiry: { $gt : Date.now() } },
-                    function(err, user) {
+        console.log('my token: ' + req.params.token);
+        db.PasswordReset.findOne({ resetToken: req.params.token, 
+                      resetTokenExpiry: { $gt : Date.now() } },
+                    function(err, passwordReset) {
             if (err) {
                 req.flash('err','Something went wrong. Please try again later');
                 res.redirect('/admin/reset_password');
-            } else if (!user) {
+            } else if (!passwordReset) {
                 req.flash('err','Invalid token');
                 res.redirect('/admin/reset_password');
             } else {
-                user.password = req.body.password;
-                user.passwordResetToken = null;
-                user.passwordResetTokenExpiry = null;
-                user.save(function(err) {
-                    if (err) {
-                        req.flash('err','Something went wrong. Please try again later');
-                    } else {
-                        req.flash('info','Password updated. Please log in.');   
-                    }
-                    res.redirect('/admin/login');  
-                })
+                passwordReset.remove();
+                
+                db.User.findOne({ _id: passwordReset.userId }, function(err, user) {
+                    user.password = req.body.password;
+                    user.save(function(err) {
+                        if (err) {
+                            req.flash('err','Something went wrong. Please try again later');
+                        } else {
+                            req.flash('info','Password updated. Please log in.');   
+                        }
+                        res.redirect('/admin/login');  
+                    })
+                
+                });
             }
             
         });
@@ -185,8 +208,8 @@ module.exports = function(app, db) {
     // Change password
     exports.changePassword = function changePassword(req, res) {
         
-        db.User.findOne({ username: req.user.username, password: req.body.oldPassword }, 
-            function(err, user){
+        
+            db.User.authenticate(req.user.username, req.body.oldPassword, function(err, user) {
                 
                 if (user) {
                     user.password = req.body.newPassword ;
@@ -202,13 +225,12 @@ module.exports = function(app, db) {
                     if (err) {
                         req.flash('err','Update failed');
                     } else {
-                        req.flash('err','Username or password incorrect');
+                        req.flash('err','Password incorrect');
                     }
                     res.redirect('/admin/account');
                 }
             
-            }
-        );
+            });
 
     };
     
@@ -341,7 +363,9 @@ module.exports = function(app, db) {
             res.render('admin/add-room', {
                 user: req.user,
                 themes: themes,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ]
+                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
+                wizard: req.query.wizard,
+                theme: req.query.theme
             }); 
         });
 
@@ -368,9 +392,14 @@ module.exports = function(app, db) {
         
             newRoom.save(function(err) {
    
-                // Take the user to the dashboard
-                res.redirect(302, '/admin/rooms'); 
-
+                // If the user is completing the wizard:
+                if (req.query.wizard) {
+                    //redirect to next step
+                    res.redirect(302, '/admin/add_session?wizard=3&room=' + encodeURIComponent(req.body.name)); 
+                } else {
+                    // Else the user to the dashboard
+                    res.redirect(302, '/admin/rooms'); 
+                }
                 
                 if (req.body.hasFilesharing) {
                     console.log('newroom:' + newRoom.roomId);
@@ -515,6 +544,26 @@ module.exports = function(app, db) {
         });
     };
     
+
+    exports.renderWizardComplete = function renderWizardComplete(req, res) {
+        
+        
+        db.Session.findOne({ name : req.query.session }, function(err, session){
+            db.Room.findOne({ roomId: session.roomId }, function(err, room){
+                db.Theme.findOne({ _id: room.theme }, function(err, theme) {
+                    res.render('admin/wizard-complete', {
+                        user: req.user,
+                        session: session,
+                        room: room,
+                        theme: theme
+                    });
+                });
+            });
+        });
+    };
+    
+    
+    // Return the exported methods to the caller
     return exports;
     
 }

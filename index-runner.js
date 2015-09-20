@@ -1,6 +1,7 @@
 var express = require('express'),
     app = express(),
-    http = require('http').Server(app);
+    http = require('http').Server(app),
+    port = 3000;
     //ect = require('ect');
 
 
@@ -15,32 +16,39 @@ var express = require('express'),
 
 
 var MyWebRTC = require('./index.js');
-//MyWebRTC.database('localhost/MyDatabase','','');
-MyWebRTC.server(null, app, http);
 
+// basic setup:
+// var rtc = MyWebRTC.init(port);
 
+// advanced setup:
+var rtc = MyWebRTC.initShared(app, http);
 
-app.get('/testing', function(req, res) {
+// Rendering an advanced chat room i.e. with user names
+app.get('/test1', function(req, res) {
 
-    MyWebRTC.renderRoom('qwee', 'bobby', req, res);
-    
-    /*
-        MyWebRTC.render('qwee', {
-            standalone: false,
-            username: username,
-        }, function(page) {
+    rtc.renderRoom(req, res, 'dWD', 'bobby', 'samuel');
 
-            res.render('test', {
-                title: "This is a dynamic test lol",
-                test: "Content",
-                rtc: page
-            });
+});
 
-        })
+// Rendering an advanced chat room i.e. with user names
+app.get('/test2', function(req, res) {
 
-    */    
+    rtc.render(req.session, 'dWD', {
+        standalone: false,
+        userId: 'sam',
+        userDisplayName: 'james',
+        userRole : 'client'
+        
+    }, function(chatRoom) {
 
-    //res.send('lol');
+        res.render('test', {
+            title: "This is a dynamic test lol",
+            text: "Content",
+            rtc: chatRoom
+        });
+
+    })
+
 });
 
 /*
@@ -65,9 +73,9 @@ MyWebRTC.createSession(options, function(err, session) {
 
 // Listen for http requests on the port
 // indicated in 'port' variable.
-http.listen(3000, function(){
+http.listen(port, function(){
     // Indicate the the port is listening
-    console.log('Listening on port ' + 3000);
+    console.log('Listening on port ' + port);
 });
     
 

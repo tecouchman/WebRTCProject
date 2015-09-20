@@ -1,0 +1,45 @@
+<% extend 'admin/layout' %>
+
+<h1>Wizard Complete</h1>
+
+<% if @session.url: %>
+    <a class="button" href="/room/<%- @session.url %>">View Chat Room</a>
+<% end %>
+<br /><br />
+<div class="info">
+    <table>
+        <tr>
+            <th>
+                Session:
+            </th>
+            <th>
+                Room:
+            </th>
+            <th>
+                Theme:
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <p><%= @session.name %></p>
+            </td>
+            <td>
+                <p><%= @room.name %></p>
+            </td>
+            <td>
+                <p><%= @theme.themeName %></p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a class="button" href="/admin/edit_session/<%= @session.sessionId %>">Edit Session</a>
+            </td>
+            <td>
+                <a class="button" href="/admin/edit_room/<%= @room.roomId %>">Edit Room</a>
+            </td>
+            <td>
+                <a class="button" href="/admin/edit_theme/<%= @theme.themeName %>">Edit Theme</a>
+            </td>
+        </tr>
+    </table>
+</div>

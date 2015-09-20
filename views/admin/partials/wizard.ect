@@ -1,0 +1,26 @@
+<div class="wizard info">
+    <div class="step <% if @wizard == '1': %>current<% end %>" >
+        1
+    </div>
+    <p>Select Theme</p>
+    <div class="step <% if @wizard == '2': %>current<% end %>">
+        2
+    </div>
+    <p>Select Room</p>
+    <div class="step <% if @wizard == '3': %>current<% end %>">
+        3
+    </div>
+    <p>Create Session</p>
+
+        <% if @wizard == '1': %>
+            <h2>Choose a theme or create a new one</h2>
+            <span>Themes determine how your chat room will look<span>
+        <% else if @wizard == '2':  %>
+            <h2>Create a new room</h2>
+            <span>Rooms are like templates, they hold the details of a chat room such as whether it has video chat or text messaging<span>
+        <% else if @wizard == '3':  %>
+            <h2>Create a session</h2>
+            <span>Create a session of a room, and start chatting<span>
+        <% end %>
+    </h2>
+</div>

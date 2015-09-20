@@ -27,6 +27,7 @@ $('#rtc-add-session-embeddable').change(function(event) {
 function updateURL() {
     var url = 'http://' + baseURL + '/room/' + $('#rtc-add-session-url').val(); 
     $('#rtc-full-url').val(url);
+    $('#rtc-page-link').attr('href', url);
 }
 
 // Method to calculate the iframe code for
@@ -59,3 +60,9 @@ function toggleEmbedSection() {
         embedSection.hide(100);
     }
 }
+
+// If the user edits the password
+$('#rtc-add-session-password').on('change', function(event) {
+    // set the value of the password changed checbox to true
+    $('#rtc-password-changed').checked(true);
+});

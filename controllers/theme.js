@@ -17,7 +17,8 @@ module.exports = function(app, models) {
             res.render('admin/theme-list', {
                 user: req.user,
                 themes: themes,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-list.js' ]
+                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-list.js' ],
+                wizard: req.query.wizard
             }); 
         });
     };
@@ -39,7 +40,8 @@ module.exports = function(app, models) {
                 mode: 'add',
                 user: req.user,
                 customCss : customCss,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-edit.js' ]
+                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/theme-edit.js' ],
+                wizard: req.query.wizard
             }); 
         }); 
 
@@ -72,12 +74,21 @@ module.exports = function(app, models) {
                 includeMobileLayout: req.body.includeMobileLayout,
                 hasCustomCss : hasCustomCss,
                 showDisplayName : req.body.showDisplayName,
-                showAvatar: req.body.showAvatar
+                showAvatar: req.body.showAvatar,
+                localVideoPIP : req.body.localVideoPIP
             });
         
+            // Save the newly created theme
             newTheme.save(function(err) {
-                // Take the user to the dashboard
-                res.redirect(302, '/admin/themes'); 
+                
+                // If the user is completing the wizard:
+                if (req.query.wizard) {
+                    //redirect to next step
+                    res.redirect(302, '/admin/add_room?wizard=2&theme=' + encodeURIComponent(req.body.themeName)); 
+                } else {
+                    // else Take the user to themes list
+                    res.redirect(302, '/admin/themes'); 
+                }
             });
         
             
@@ -160,7 +171,8 @@ module.exports = function(app, models) {
             includeMobileLayout: req.body.includeMobileLayout,
             hasCustomCss : hasCustomCss,
             showDisplayName : req.body.showDisplayName,
-            showAvatar: req.body.showAvatar
+            showAvatar: req.body.showAvatar,
+            localVideoPIP : req.body.localVideoPIP
         };
 
         // Call update on the theme model, passing in the

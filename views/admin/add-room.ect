@@ -1,6 +1,11 @@
 <% extend 'admin/layout' %>
+    
+<% if @wizard: %>
+    <% include 'admin/partials/wizard', { 'wizard': @wizard } %>    
+<% end %>
+    
 <h1>Add a New Room</h1>
-<form action="/admin/add_room" method="post">
+<form action="/admin/add_room<% if @wizard: %>?wizard=<%- @wizard %><% end %>" method="post">
     <fieldset>
         <label>Room Name</label>
         <input id="rtc-add-room-name" type="text" name="name" />
@@ -61,7 +66,7 @@
         <label>Theme</label>
         <select id="rtc-add-room-theme" name="theme">
             <% for theme in @themes : %>
-                <option value="<%- theme._id %>"><%= theme.themeName %></option>
+                <option value="<%- theme._id %>" <% if @theme == theme.themeName : %>selected<% end %> ><%= theme.themeName %></option>
             <% end %>
         </select>
     </fieldset>
@@ -92,4 +97,5 @@
         <label for="rtc-add-room-popout"></label>
     </fieldset>
     <button id='rtc-add-room-button' type="submit">Add Room</button>
+    <a type="submit" href="/admin/rooms" class="button-red" ><span>Cancel</span></a>
 </form>

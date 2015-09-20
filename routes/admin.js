@@ -9,7 +9,6 @@ module.exports = function(app, admin, session, theme) {
     // name before the callback. Then called by express when a
     // request is made.
     var checkAuthenticated = function(req, res, next) {
-        console.log(req.isAuthenticated());
         // If the request is authenticated then no action required,
         // simple call next() to allow to the next middleware.
         if (req.isAuthenticated()) {
@@ -34,10 +33,13 @@ module.exports = function(app, admin, session, theme) {
     app.post('/admin/request_password_reset', admin.requestPasswordReset);
     
     // Listener for when a user request the login page
-    app.get('/admin/reset_password/:token', admin.renderPasswordReset)
+    app.get('/admin/reset_password/:token', admin.renderPasswordReset);
     
     // Listener for when a user request the login page
-    app.post('/admin/reset_password/:token', admin.resetPassword)
+    app.get('/admin/reset_password/', admin.renderPasswordReset);
+    
+    // Listener for when a user request the login page
+    app.post('/admin/reset_password/:token', admin.resetPassword);
     
     // When a user logs out
     app.post('/admin/logout', admin.logout);
@@ -117,5 +119,6 @@ module.exports = function(app, admin, session, theme) {
     // On client log delete request with the sessionId of the logs to be deleted.
     app.delete('/admin/logs/:sessionId', checkAuthenticated, admin.deleteLog);
 
+    app.get('/admin/wizard_complete', checkAuthenticated, admin.renderWizardComplete);
 
 }

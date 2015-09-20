@@ -21,8 +21,7 @@ module.exports.set = function(http, db, session) {
     // Set up a listener for when a client connects (a user visits the page)
     io.on('connection', function(socket) {
 
-        console.log('session:' + socket.handshake.session.username );   
-        
+
         console.log('client connection');
 
         // TODO: socket.request.headers.referer is undocumented, maybe unreliable
@@ -30,7 +29,7 @@ module.exports.set = function(http, db, session) {
         var URL = url.parse(socket.request.headers.referer);
         // The room ID is the final part of the path, so remove
         // the start.
-        var roomId = getUrlQuery(URL.path);
+        var roomId = socket.handshake.session.rtc_session;
 
         if (!rooms[roomId])
             rooms[roomId] = 0
@@ -50,7 +49,7 @@ module.exports.set = function(http, db, session) {
                 onData();
             });
 
-            db.Session.findOne({ url : roomId }, function(err, sessionResult) {
+            db.Session.findOne({ sessionId : roomId }, function(err, sessionResult) {
                 session = sessionResult;
                 // Find the room in the database:
                 db.Room.findOne({ roomId : session.roomId }, function(err, roomResult) {
@@ -76,7 +75,7 @@ module.exports.set = function(http, db, session) {
 
                 if (session && room && iceServers && fileOptions && theme) {
                     console.log('all data!');
-                    console.log(room.name);
+                    console.log('displayname: ' + socket.handshake.session.rtc_userDisplayName);
 
                     var iceServerUrls = [];
                     iceServers.forEach(function(elem, num) {
@@ -95,11 +94,12 @@ module.exports.set = function(http, db, session) {
                         'shareLocalVideo' : room.hasVideo,
                         'shareLocalAudio' : room.hasAudio,
                         'remoteVideo' : true,
-                        'textChat' : room.hasMessaging,
+                        'hasMessaging' : room.hasMessaging,
                         'allowScreensharing' : room.allowScreensharing,
                         'iceServers' : iceServerUrls,
                         'fileSharing' : room.hasFilesharing,
-                        'embeddable' :  session.embeddable
+                        'embeddable' :  session.embeddable,
+                        'displayName' : socket.handshake.session.rtc_userDisplayName
                     }
                     
                     if (room.hasFilesharing) {
@@ -128,7 +128,11 @@ module.exports.set = function(http, db, session) {
                         'fullscreenEnabled': room.fullscreenEnabled,
                         'popoutEnabled': room.popoutEnabled,
                         'showAvatar': theme.showAvatar,
-                        'showDisplayName' : theme.showDisplayName
+                        'showDisplayName' : theme.showDisplayName,
+                        'localVideoPIP' : theme.localVideoPIP,
+                        'hasVideo' : room.hasVideo,
+                        'hasAudio' : room.hasAudio,
+                        'hasMessaging' : room.hasMessaging
                     }
                     
                     if (room.hasFilesharing) {
@@ -188,16 +192,20 @@ module.exports.set = function(http, db, session) {
             db.SessionCredentials.findOne({ sessionId : session.sessionId }, 
                                           function(err, sessionCredential){
                 
-                // If the password is correct
-                if (data.password == sessionCredential.password) {
-                    // Add the user to the room
-                    joinRoom(roomId);
-                    // And return a message to inform them the password was correct.
-                    socket.emit('PasswordCorrect');
-                } else {
-                    // Else, inform the client the password was incorrect.
-                    socket.emit('PasswordIncorrect');
-                }
+                // Check if the password is correct
+                db.SessionCredentials.authenticate(session.sessionId, data.password, function(err, authenticatedCredentials) {   
+
+                    // If the authenticated credentials is returned,
+                    // the password was correct
+                    if (authenticatedCredentials) {
+                        joinRoom(roomId);
+                        // return a message to inform them the password was correct.
+                        socket.emit('PasswordCorrect');
+                    } else {
+                        // Else, inform the client the password was incorrect.
+                        socket.emit('PasswordIncorrect');
+                    }
+                });
             })
         })
 
@@ -267,8 +275,4 @@ module.exports.set = function(http, db, session) {
 
     });
     
-    // Returns the content after the final forward slash in a URL
-    function getUrlQuery(url) {
-        return url.substr(url.lastIndexOf('/') + 1);;
-    }
 }

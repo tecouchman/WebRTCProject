@@ -33,6 +33,8 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         // If a message was recieved
         switch (receivedData.type) {
             case 'message':
+                
+                console.log('got message: '+ receivedData.data);
                 // Trigger a 'MessageReceived' event
                 $(_connection).trigger("MessageReceived", [ receivedData.data ]);
                 break;
@@ -176,7 +178,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
                     _connection.peerConnection.setLocalDescription(answer);
 
                     // Trigger the CreateAnswer event so subscribers are updated.
-                    $(MyWebRTC).trigger("CreateAnswer", [ _connection.id, _connection.displayName, answer ]);
+                    $(MyWebRTC).trigger("CreateAnswer", [ _connection.id, MyWebRTC.getDisplayName(), answer ]);
                 }, 
                 function(err){
                     // TODO: Error handling
@@ -215,7 +217,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
     this.sendMessage = function(message) {
         // If their send data channel is open:
         if (_connection.peerConnection.sendDataChannel.readyState === 'open') {
-            
+            console.log('sending message');
             // Send the data to the peer connection, with the type 'message'
             _connection.peerConnection.sendDataChannel.send(JSON.stringify({ type : "message", data : message }));
         }

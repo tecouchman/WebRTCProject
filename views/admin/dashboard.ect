@@ -1,2 +1,22 @@
 <% extend 'admin/layout' %>
-<h1>Dashboard</h1>
+<h1>Welcome to the MyWebRTC admin panel.</h1>
+
+
+<h2>Setup Wizard</h2>
+<p class="info">
+    The setup wizard provides a walkthrough for creating a chat room.
+</p>
+<a class="button" href="/admin/themes?wizard=1" >Begin Wizard</a>
+<br /><br />
+<h2>Getting started</h2>
+<div class="info">
+    <p>Chats rooms consist of three parts. Themes, Rooms and Sessions.</p> 
+    <dl>
+        <dt>Themes</dt>    
+        <dd>First the theme, this defines the layout and appearnace of  the them.</dd> 
+        <dt>Rooms</dt>   
+        <dd>Next is the Room, this is like a template that defines all of the features of a chat room, such as whether users can send messages, share files etc.</dd> 
+        <dt>Sessions</dt>   
+        <dd>Finally, a session of a Room must be created. A sessions uses Room as a template, and takes it live. Sessions can then be accessed by users, allowing them to communicate.</dd>
+    </dl>
+</div>

@@ -9,6 +9,14 @@ body.standalone {
     margin: 0;
 }
 
+#rtc-container {
+    font-size: 0.5em;
+}
+
+body.standalone #rtc-container {
+    font-size: 1.0em;
+}
+
 /* Styles for the main container when in fullscreen mode
    Vendor prefixing of the full screem pseudo class
    means the style has to be repeated.  */

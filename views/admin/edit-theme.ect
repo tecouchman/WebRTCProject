@@ -1,4 +1,9 @@
 <% extend 'admin/layout' %>
+    
+<% if @wizard: %>
+    <% include 'admin/partials/wizard', { 'wizard': @wizard } %>    
+<% end %>
+    
 <h1>
     <% if @mode == 'add' : %>
         Create New Theme
@@ -6,7 +11,7 @@
         Edit Theme
     <% end %>
 </h1>
-<form action="/admin/<%= @mode %>_theme/<%= @theme?.themeName %>" method="post">
+<form action="/admin/<%= @mode %>_theme/<%= @theme?.themeName %><% if @wizard: %>?wizard=<%- @wizard %><% end %>" method="post">
     <fieldset>
         <label>Theme Name</label>
         <input id="rtc-add-theme-name" type="text" name="themeName" value="<%= @theme?.themeName %>" />
@@ -32,13 +37,23 @@
         <label for="rtc-include-mobile" ></label>
         <label for="rtc-include-mobile" >Mobile Layout</label>
         <p class="setting-description">Switch to vertical layout on restricted-width displays.</p>
-
     </fieldset>
+        
+    <fieldset>
+        <input id="rtc-pip" type="checkbox" name="localVideoPIP" <% if @theme?.localVideoPIP : %>checked<% end %> />
+        <label for="rtc-pip" ></label>
+        <label for="rtc-pip">PIP for Local Video</label>
+        <div class="setting-description">
+            <img src="/images/icons/theme/pip.png" />
+            <p>Use picture-in-picture layout for local video stream.</p>
+        </div>
+    </fieldset>
+        
     <fieldset>
         <input id="rtc-show-display-name" type="checkbox" name="showDisplayName" <% if @theme?.showDisplayName : %>checked<% end %> />
         <label for="rtc-show-display-name" ></label>
         <label for="rtc-show-display-name">Show Display Names</label>
-        <p class="setting-description">Display names are shown next to message users send.</p>
+        <p class="setting-description">Display names are shown next to messages users send.</p>
     </fieldset>
     <fieldset>
         <input id="rtc-show-avatar" type="checkbox" name="showAvatar" <% if @theme?.showAvatar : %>checked<% end %> />
@@ -49,7 +64,7 @@
     <fieldset>
         <input id="rtc-has-custom-css" type="checkbox" name="hasCustomCss" <% if @theme?.hasCustomCss : %>checked<% end %> />
         <label for="rtc-has-custom-css" class="custom" ></label>      
-        <label for="rtc-has-custom-css" >Custom Css</label>  
+        <label for="rtc-has-custom-css" >Custom CSS</label>  
         <div id="rtc-custom-css-section" class="setting-description <% if !@theme?.hasCustomCss : %>hidden<% end %>">
             <fieldset>
                 <span>Styles entered below will replace the default styles.</span>
@@ -58,4 +73,5 @@
         </div>
     </fieldset>
     <button id='rtc-add-theme-button' type="submit">Save Theme</button>
+    <a type="submit" href="/admin/themes" class="button-red" ><span>Cancel</span></a>
 </form>

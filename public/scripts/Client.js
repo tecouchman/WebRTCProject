@@ -1,7 +1,5 @@
 $(document).ready(function() {
     
-
-    
     socket = window.io();
 
     // Request the options from the server
@@ -16,7 +14,6 @@ $(document).ready(function() {
     })
     
     socket.on("RoomFull", function (evt) {
-            console.log('RoomFull');
             $(MyWebRTC).trigger("RoomFull");
     });
     
@@ -37,7 +34,7 @@ $(document).ready(function() {
             };
             // Use ECT to render the popup
             var popup = renderer.render('partials/popup', popupData);
-            $('#rtc-container').append(popup);
+            $('#rtc-popup-area').append(popup);
         }
         
     });

@@ -25,7 +25,8 @@
     <div id="rtc-add-session-password-section" class="info <% if !@session.passwordProtected : %>hidden<%end%>">
         <fieldset>
             <label>Password</label>
-            <input id="rtc-add-session-password" type="password" name="password" value="<% if @session.passwordProtected : %>         <%end%>"/>
+            <input id="rtc-add-session-password" name="password" type="password" placeholder="<% if @session.passwordProtected : %>******<%end%>"/>
+            <input class="hidden" id="rtc-password-changed" type="checkbox" name="passwordChanged" /> 
         </fieldset>
     </div>
     <fieldset>
@@ -36,12 +37,14 @@
         
     <div id="rtc-add-session-embed-section" class="info <% if !@session.embeddable : %>hidden<%end%>">
         <h2>Standalone page:</h2>
-        <input id="rtc-full-url" type="text" />
+        <input id="rtc-full-url" class="inline-input" type="text" />
+        <a id="rtc-page-link" class="button" ><span>Visit</span></a>
 
         <h2>Embed:</h2>
         <textarea id="rtc-embed-code" rows="3"></textarea>
     </div>
     <button id='rtc-add-session-button' type="submit">Save Changes</button>
+    <a type="submit" href="/admin/sessions" class="button-red" ><span>Cancel</span></a>
 </form>
 <script>
     var baseURL = '<%= @baseURL %>';

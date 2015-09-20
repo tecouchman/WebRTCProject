@@ -6,7 +6,6 @@ module.exports = function(app, db) {
         crypto = require('crypto'),
         fs = require('fs');
     
-    
     var exports = {};
     
     // On client get request for the sessions list
@@ -54,7 +53,9 @@ module.exports = function(app, db) {
             res.render('admin/add-session', {
                 user: req.user,
                 scripts: [ '/scripts/jquery.min.js', '/scripts/admin/session-add.js' ],
-                rooms: rooms
+                rooms: rooms,
+                wizard: req.query.wizard,
+                selectedRoom: req.query.room
             }); 
         });
 
@@ -75,11 +76,26 @@ module.exports = function(app, db) {
                     && req.body.password != null 
                     && req.body.password != '') {
                         addCredentials(session.sessionId, req.body.password ,function(err, password, numberAffected) {
-                            res.redirect(302, '/admin/sessions'); 
+                            
+                            // If the user is completing the wizard:
+                            if (req.query.wizard) {
+                                //redirect to next step
+                                res.redirect(302, '/admin/wizard_complete?session=' + encodeURIComponent(req.body.name)); 
+                            } else {
+                                // Else the user to the session list
+                                res.redirect(302, '/admin/sessions');
+                            }
+                            
                         });
                 } else {
-                    // Take the user to the dashboard
-                    res.redirect(302, '/admin/sessions'); 
+                    // If the user is completing the wizard:
+                    if (req.query.wizard) {
+                        //redirect to next step
+                        res.redirect(302, '/admin/wizard_complete?session=' + encodeURIComponent(req.body.name)); 
+                    } else {
+                        // Else the user to the session list
+                        res.redirect(302, '/admin/sessions');
+                    }
                 }
             });
     };
@@ -133,8 +149,10 @@ module.exports = function(app, db) {
                 url: req.body.url,
                 embeddable: req.body.embeddable,
                 roomId: req.body.roomId,
-                passwordProtected : req.body.passwordProtected
+                passwordProtected : req.body.passwordProtected && (!req.body.passwordChanged || req.body.password != '')
             };
+        
+        console.log(req.body.passwordChanged);
 
             // Call update on the Sessions model, passing in the
             // conditions that identify the session to update and the 
@@ -143,21 +161,27 @@ module.exports = function(app, db) {
                 
                 db.SessionCredentials.findOne({ sessionId : sessionId }, function(err, sessionCredential) {
                     
-                    var redirect = function() { res.redirect(302, '/admin/sessions') }; 
+                    var redirectCallback = function() { res.redirect(302, '/admin/sessions') }; 
                     
                     if (sessionCredential) {
                         if (req.body.passwordProtected) {
-                            sessionCredential.password = req.body.password;
-                            sessionCredential.save(redirect);
+                            if (req.body.password != '') {
+                                sessionCredential.password = req.body.password;
+                                sessionCredential.save(redirectCallback);   
+                            } else if (req.body.passwordChanged) {
+                                sessionCredential.remove();
+                            } else {
+                                redirectCallback();
+                            }
                         } else {
                             sessionCredential.remove();
                         }
                        
                     } else {
-                        if (req.body.passwordProtected) {
-                            addCredentials(sessionId, req.body.password, redirect);   
+                        if (req.body.passwordProtected && req.body.password != '') {
+                            addCredentials(sessionId, req.body.password, redirectCallback);   
                         } else {
-                            redirect();
+                            redirectCallback();
                         }
                     }
                     

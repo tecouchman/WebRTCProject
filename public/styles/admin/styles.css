@@ -17,21 +17,29 @@ h2 {
     font-size: 1.2em;
 }
 
+header a {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+header a:hover {
+    text-decoration: none;
+    color: #80d3c6;
+}
+
 header {
     width: 100%;
-    padding: 0;
-    color: #77c6c6;
-    height: 60px;  
-    border-bottom: 1px solid #77c6c6;
-    box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.12);
+    padding: 3px;
+    color: white;
+    height: 62px;  
+    border-bottom: 5px solid #80d3c6;
     z-index: 100;
-    margin-bottom: 5px;
     position: fixed;
-    background-color: white;
+    background-color: #4f5864;
 }
 
 .container {
-    padding: 65px 30px 0 30px;
+    padding: 85px 30px 0 30px;
 }
 
 header .container {
@@ -39,7 +47,7 @@ header .container {
 }
 
 header h1 {
-    padding: 13px 0;
+    padding: 14px 0;
     margin: 0;
     font-size: 1.4em;
     margin: 5px 0;
@@ -59,13 +67,13 @@ img {
 
 fieldset {
     border: none;
+    padding: 8px 0;
 }
 
 input, select{
     display: block;
     width: 300px;
-    margin-top: 4px;
-    padding: 8px;
+    padding: 7px;
     font-size: 1.3em;
     border: 1px solid #dfdfdf;
 }
@@ -109,6 +117,10 @@ input[type="checkbox"] + label:hover {
 
 #rtc-theme-selector {
 
+}
+
+input[type="radio"] {
+    width: 20px;   
 }
 
 
@@ -168,8 +180,8 @@ select {
 
 button, .button, .button-red {
     color: white !important;
-    margin: 10px 0px 10px 10px;
-    padding: 8px 16px;
+    margin: 0px 0px 10px 5px;
+    padding: 8px 16px 8px 16px;
     border: none;
     border-radius: 3px;
     font-size: 1.1em;
@@ -177,12 +189,13 @@ button, .button, .button-red {
     display: inline-block;
     font-weight: 100;
     text-decoration: none;
+    vertical-align: middle;
 }
 
 
 button, .button {
-    background-color: #96d4d4;
-    border-bottom: 3px solid #82b7b7;
+    background-color: #80d3c6;
+    border-bottom: 3px solid #72b1a7;
 }
 
 .button-red {
@@ -210,7 +223,10 @@ button, .button {
 }
 
 
-
+.button.inline {
+    display:inline-block;
+    vertical-align: middle;
+}
 
 .image-button {
     padding: 3px 10px;
@@ -352,17 +368,19 @@ nav#rtc-main-menu > ul > li {
 }
 nav#rtc-main-menu > ul > li > a {
     text-decoration: none;
-    color: #77c6c6;
+    color: #ffffff;
 }
 
 nav#rtc-main-menu > ul > li > a:hover {
-    color: #59a3a3;
+    color: #80d3c6;
 }
 
 .user-menu {
     margin-left: 20px !important;
     margin-top: 6px !important;
     padding: 8px 13px !important;
+    /*background-color: #8ecece;*/
+    border-bottom: 3px solid #6d908a;
 }
 
 
@@ -375,11 +393,11 @@ nav#rtc-main-menu > ul > li:hover > .sub-menu {
 .sub-menu {
     position: absolute;
     width: 130px;
-    margin: 9px 0 0 -62px;
+    margin: 9px 0 0 -67px;
     padding: 0;
     border-radius: 3px 0 3px 3px;
-    background-color: #8dbcbc;
-    border-bottom: 3px solid #4b8e8e;
+    background-color: #7dc6ba;
+    border-bottom: 3px solid #72b1a7;
     list-style: none;
     z-index: -1;
     opacity: 0;
@@ -412,21 +430,17 @@ nav#rtc-main-menu > ul > li:hover > .sub-menu {
     color: white;
 }
 
-.sub-menu li:hover {
-    background-color: #96d4d4;
+.sub-menu a:hover {
+    color:white;   
 }
 
-
-
-
-
+.sub-menu li:hover {
+    background-color: #80d3c6;
+}
 
 .inline-input {
     display: inline-block;
-}
-
-#rtc-add-stun-url, #rtc-add-turn-url {
-    padding: 5px 4px;
+    vertical-align: middle;
 }
 
 .hidden {
@@ -437,4 +451,62 @@ nav#rtc-main-menu > ul > li:hover > .sub-menu {
 .message {
     margin: 0;
     padding: 0 !important;
+}
+
+dt {
+    font-weight: 500;
+    margin: 15px 0;
+}
+
+dd {
+    margin: 15px 0 15px 15px;
+}
+
+.wizard {
+    text-align: center;
+    margin: 10px auto;
+}
+
+.wizard .step {
+    box-sizing: border-box;
+    background-color: #d1dbdb;  
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    text-align: center;
+    display: inline-block;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    font-size: 1.4em;
+    color: white;
+}
+
+.wizard .step.current {
+    background-color: #80d3c6;   
+}
+
+.wizard p {
+    display: inline-block;
+    padding: 0 25px 0 5px;
+    width: 120px;
+}
+
+.wizard h2 {
+    margin-bottom: 10px;
+}
+
+.wizard span {
+    font-size: 0.8em;   
+}
+
+
+.info table td, .info table th {
+    padding: 5px 20px;
+}
+.info table td .button {
+    margin: 0;
+}
+.info table th {
+    font-weight: 100;
+    text-align: left;
 }

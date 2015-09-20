@@ -1,6 +1,11 @@
 <% extend 'admin/layout' %>
+
+<% if @wizard: %>
+    <% include 'admin/partials/wizard', { 'wizard': @wizard } %>    
+<% end %>
+    
 <h1>Add Session</h1>
-<form action="/admin/add_session" method="post">
+<form action="/admin/add_session<% if @wizard: %>?wizard=<%- @wizard %><% end %>" method="post">
     <fieldset>
         <label>Session Name</label>
         <input id="rtc-add-session-name" type="text" name="name" />
@@ -29,9 +34,10 @@
         <label>Room</label>
         <select id="rtc-add-session-room" name="roomId">
             <% for room in @rooms : %>
-                <option value="<%= room.roomId %>"><%= room.name %></%></option>
+                <option value="<%= room.roomId %>" <% if @selectedRoom == room.name : %>selected<% end %>><%= room.name %></%></option>
             <% end %>
         </select>
     </fieldset>
     <button id='rtc-add-session-button' type="submit">Create Session</button>
+    <a type="submit" href="/admin/sessions" class="button-red" ><span>Cancel</span></a>
 </form>

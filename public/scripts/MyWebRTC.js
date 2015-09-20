@@ -21,13 +21,12 @@
             shareLocalVideo: true,
             shareLocalAudio: true,
             remoteVideo: true,
-            textChat: true,
+            hasMessaging: true,
             allowScreensharing : true,
             iceServers: [],
             fileSharing : true
         };
-        
-    var PeerConnection, IceCandidate, SessionDescription;
+ 
     
     // The Stun/Turn servers to use
     var peerConfiguration = {
@@ -52,14 +51,9 @@
     var init = function (localId, opts) {
         
         localPeerId = localId;
-        
-        // Create global variables for the various WebRTC Methods/Classes, and assign the unprefixed/vendor prefixed method/class available in the current browser.
-        // This means that vendor prefixes will not need to be use from this point on as the global variables can be used.
-        // TODO: Global or local?
-        /*this.PeerConnection = global.RTCPeerConnection || global.webkitRTCPeerConnection || global.mozRTCPeerConnection || global.msRTCPeerConnection;
-        this.IceCandidate = global.RTCIceCandidate || global.mozRTCIceCandidate || global.webkitIceCandidate;
-        this.SessionDescription = global.RTCSessionDescription || global.mozRTCSessionDescription || global.webkitRTCSessionDescription || global.msRTCSessionDescription;
-        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;*/
+        if (opts.displayName) {
+            displayName = opts.displayName;
+        }
         
         // Merge default options with the options passed in.
         $.extend(options, options, opts)
@@ -73,22 +67,17 @@
         });
         
 
-        
         // If any of the necessary components are not available
         // then the browser cannot run the app so trigger a browserNotSupported event
-        /*if (!this.PeerConnection || 
-            !this.IceCandidate || 
-            !this.SessionDescription ||
+        if (!RTCPeerConnection || 
+            !RTCIceCandidate || 
+            !RTCSessionDescription ||
             !navigator.getUserMedia) {
             
             $(MyWebRTC).trigger('browserNotSupported'); 
             return;
             
-        } else {
-            this.PeerConnection.bind(global);
-            this.IceCandidate.bind(global);
-            this.SessionDescription.bind(global);
-        }*/
+        } 
         
         // Only request local media if either local video or audio are being shared
         // else will error.
@@ -165,18 +154,13 @@
     var addRemoteIceCandidate = function (remotePeerId, iceCandidate) {
         peers[remotePeerId].addIceCandidate(iceCandidate);
     };
-
-    
-    var join = function(sessionId) {
-        
-    }
     
     // Method to set up a peer connection to remote peer
     var connect = function(remotePeerId) {
         
         // Create a  new Peer object, pass in a new PeerConnecion
         // and store in the peers map.
-        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.textChat);
+        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging);
         attachHandlers(peers[remotePeerId]);
         
         // Create an offer
@@ -189,13 +173,16 @@
     
     var attachHandlers = function(connection) {
         // If text chat set up data channel listeners
-        if (options.textChat) {
+        if (options.hasMessaging) {
             $(connection).on('DataChannelClosed', onDataChannelClosed);
             $(connection).on('DataChannelOpen', onDataChannelOpen);
+            $(connection).on('MessageReceived', function(event, data) {
+				console.log(event);
+				console.log('relaying message');
+				$(MyWebRTC).trigger("MessageReceived", [ event.target.id, event.target.displayName, data ]);
+			});
         }
-        
         if (options.fileSharing) {
-            $(connection).on('MessageReceived', onMessageReceived);
             $(connection).on('FileOffer', onFileOffer);
             
             // Relay file updates
@@ -221,11 +208,6 @@
         }
     }
     
-    // handler for when a Connection recieves a message
-    var onMessageReceived = function(event, data) {
-
-        $(MyWebRTC).trigger("MessageReceived", [ event.target.id, event.target.displayName, data ]);
-    }
     
     // handler for when a Connection recieves a message
     var onFileOffer = function(event, name, size) {
@@ -240,11 +222,13 @@
         $(MyWebRTC).trigger("FileOfferRecieved", [ event.target.id, event.target.displayName, name, size ]);
     }
      
+	
+	// TODO: remove?
     // handler for when a Connection recieves a message
-    var onFileAccept = function(event, name) {
+    /*var onFileAccept = function(event, name) {
         //$(MyWebRTC).trigger("FileAccept", [ event.target.id, receivedData.name ]);
         fileOfferAccepted(event.target.id, name);
-    }
+    }*/
     
     var onDataChannelOpen = function() {
         // If no data channels were previously opened:
@@ -293,23 +277,19 @@
         peers[senderId].acceptFileOffer(fileName);
     }
         
-    var fileOfferAccepted = function(target, name) {
+	
+	// TODO : remove?
+    /*var fileOfferAccepted = function(target, name) {
 
-    }
+    }*/
     
     // Method by which remote offers can be passed to the local MyWebRTC object
     var addOffer =  function(remotePeerId, peerDisplayName, peerType, offer) {
         
         // Generate a Peer object, pass in a peer connection.
         // Store peer in the peers map.
-        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.textChat, peerType, peerDisplayName);
+        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging, peerType, peerDisplayName);
         attachHandlers(peers[remotePeerId]);
-        
-        // If text chat set up data channel listeners
-        if (options.textChat) {
-            $(peers[remotePeerId]).on('DataChannelClosed', onDataChannelClosed);
-            $(peers[remotePeerId]).on('DataChannelOpen', onDataChannelOpen);
-        }
         
         peers[remotePeerId].addOffer(offer);
         $(MyWebRTC).trigger("PeerConnected", [ remotePeerId, peerDisplayName ]);
@@ -379,7 +359,7 @@
     // Public methods / members:
     var MyWebRTC = {
         version: version,           // Rreturns the current version of the library
-        options: function() { return options; },
+        getOptions: function() { return options; },
         init : init,
         close : close,
         getPeers : function() { return peers },
@@ -394,15 +374,14 @@
         sendFile : sendFile,
         acceptFile : acceptFile,
         setPeerDisplayName : function(id, displayName) { peers[id].setDisplayName(displayName); },
-        PeerConnection: PeerConnection,
-        IceCandidate: IceCandidate,
-        SessionDescription : SessionDescription,
-        localMedia : {
-            getStream: function() { return localStream },
-            stopVideo: function() { setVideoEnabled(false) },
-            startVideo: function() { setVideoEnabled(true) },
-            stopAudio: function() { setAudioEnabled(false) },
-            startAudio: function() { setAudioEnabled(true) },
+        getLocalMedia : function() {
+			return {
+				getStream: function() { return localStream },
+				stopVideo: function() { setVideoEnabled(false) },
+				startVideo: function() { setVideoEnabled(true) },
+				stopAudio: function() { setAudioEnabled(false) },
+				startAudio: function() { setAudioEnabled(true) },
+			};
         }
     };
     
