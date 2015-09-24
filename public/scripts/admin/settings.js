@@ -1,6 +1,12 @@
 var renderer = ECT({ root : '/views', ext : '.ect' });
 
 $('#rtc-add-turn-button').click(function(event) {
+	
+	if ($('#rtc-add-turn-url').val() == '') {
+		alert('Please enter a TURN server url');
+		return;
+	}
+	
     // Get the url to be added
     var serverUrl = $('#rtc-add-turn-url').val();
     // clear the text box:
@@ -13,6 +19,12 @@ $('#rtc-add-turn-button').click(function(event) {
 });
 
 $('#rtc-add-stun-button').click(function(event) {
+	
+	if ($('#rtc-add-stun-url').val() == '') {
+		alert('Please enter a STUN server url');
+		return;
+	}
+	
     // Get the url to be added
     var serverUrl = $('#rtc-add-stun-url').val();
     // clear the text box:

@@ -15,6 +15,8 @@ body.standalone {
 
 body.standalone #rtc-container {
     font-size: 1.0em;
+	height: 100%;
+	weight: 100%;
 }
 
 /* Styles for the main container when in fullscreen mode

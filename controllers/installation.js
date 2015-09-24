@@ -42,19 +42,31 @@ module.exports = function(app, db, accountManager) {
     
     exports.setupDatabase = function setupDatabase(req, res) {
         // Initialise the database with the data from the user
-        db.init(req.body.url,req.body.username,req.body.email, req.body.tableprefix);
+        db.init(req.body.url,req.body.username,req.body.email, req.body.tableprefix, function(connected) {
 
-        // Initialise the database with some data
-        setUpDBData();
-        
-        // Store the database details to the config file so they can be loaded later.
-        config.add('dbURL', req.body.url);
-        config.add('dbUser', req.body.username);
-        config.add('dbPassword', req.body.password);
-        config.add('dbTablePrefix', req.body.tableprefix);
+			if (connected) {
+				console.log('saving db data');
 
-        // Take the user to the registration page
-        res.redirect(302, '/install/register'); 
+				// Initialise the database with some data
+				setUpDBData();
+
+				console.log('saving file');
+
+				// Store the database details to the config file so they can be loaded later.
+				config.add('dbURL', req.body.url);
+				config.add('dbUser', req.body.username);
+				config.add('dbPassword', req.body.password);
+				config.add('dbTablePrefix', req.body.tableprefix);
+
+				// Take the user to the registration page
+				res.redirect(302, '/install/register'); 
+			} else {
+				// connection issue - setup a flash message to display to the user.
+				req.flash('err', 'Could not connect to the database. Please check your connection details and try again.')
+				// Take the user to the registration page
+				res.redirect(302, '/install/database'); 	
+			}
+		});
     };
 
     exports.renderAccountSetup = function renderAccountSetup(req, res) {
@@ -74,8 +86,12 @@ module.exports = function(app, db, accountManager) {
         adminAccount.save(function(err) {
             // If it failed
             if (err) {
-                // TODO: what to do here?
+				// display a message to the user.
+                req.flash('err', 'Error saving account. Please try again')
+				// Take the user to the registration page
+				res.redirect(302, '/install/register'); 	
             } else {
+				// else take them to the admin section
                 res.redirect(302, '/admin'); 
             }
         });

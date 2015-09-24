@@ -1,5 +1,5 @@
 {
-  "name": "mywebrtc",
+  "name": "InstantRTC",
   "version": "0.2.0",
   "description": "WebRTC Framework",
   "dependencies": {
@@ -14,10 +14,7 @@
     "express-session": "^1.11.3",
     "mongoose": "~4.0.0",
     "mongoose-auto-increment": "^4.0.0",
-    "node-webkit": "0.0.0",
-    "node-webrtc": "0.0.0",
     "nodemailer": "^1.4.0",
-    "nwjs": "0.0.15",
     "passport": "^0.3.0",
     "passport-local": "^1.0.0",
     "socket.io": "^1.3.6"

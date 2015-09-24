@@ -9,9 +9,8 @@
 module.exports = function(app, db) {
         
     var url = require('url'),
-        async = require('async'),
         crypto = require('crypto'),
-        emailer = require(app.get('root') + '/emailer')(app.get('sendEmailAddress'),app.get('sendEmailPassword'));
+        emailer = require(app.get('root') + '/emailer')('webrtcaddress@gmail.com','webrtcPassword');
     
     
     // Object to be returned to the caller,
@@ -76,7 +75,7 @@ module.exports = function(app, db) {
                     res.redirect('/admin/request_password_reset');
                 } else {
                     
-                    console.log('adding token to user: '+ user.id);
+ 
                     
                     db.PasswordReset.findOne({ userId: user.id }, function(err, passwordReset) {
                     
@@ -94,15 +93,15 @@ module.exports = function(app, db) {
                         }
 
                         passwordReset.save(function(err) {
-
                             
-                        var subject = 'MyWebRTC Password Reset';
+                        var subject = 'InstantRTC Password Reset';
                         var body = 'To reset your password click the following link:\n' + 
             'http://' + req.headers.host + '/admin/reset_password/' + token +
             '\n\nIf you did not request a password reset, please ignore this email.';
                             
                         emailer.send(user.emailAddress, subject, body, function(err) {
                                 if (err) {
+									console.error('Error sending password reset email: ' + err);
                                     req.flash('err','Email could not be sent. Please try again later'); 
                                 } else {
                                     req.flash('info','Email sent. Please check your inbox for you password reset link.');
@@ -125,9 +124,7 @@ module.exports = function(app, db) {
     // Listener for when a user request the login page
     exports.renderPasswordReset = function renderPasswordReset(req, res) {
 
-        db.PasswordReset.find({}, function(err, results) {
-            console.log('results: ' + results);
-        });
+
         
         console.log('req token: ' + req.params.token);
         
@@ -193,7 +190,8 @@ module.exports = function(app, db) {
     exports.renderAdmin = function(req, res) {
         // Render the dashboard
         res.render('admin/dashboard', {
-            user: req.user          
+            user: req.user,
+			scripts: [ '' ]
         }); 
     };
     
@@ -243,50 +241,20 @@ module.exports = function(app, db) {
                 if (user) {
                     user.emailAddress = req.body.emailAddress ;
                     user.save(function(err) {
-                        req.flash('info', 'Email address updated.')
+                        req.flash('info', 'Email address updated.');
+						res.redirect('/admin/account');
                     });
-                } else if (err) {
-                    req.flash('err', 'Update failed')
-                } 
-                res.redirect('/admin/account');
+                } else {
+                    req.flash('err', 'Update failed');
+					res.redirect('/admin/account');
+				}
+			
+
             }
         );
-
+		
     };
 
-    // On get request for rooms list
-    exports.renderRooms = function renderRooms(req, res) {
-
-        db.Room.find(function(err, rooms) {
-            res.render('admin/room-list', {
-                user: req.user,
-                rooms: rooms,
-                scripts: [  '/scripts/jquery.min.js', '/scripts/admin/room-list.js' ]
-            }); 
-        });
-    };
-
-
-    // On client room delete request with the id of the room to be deleted.
-    exports.deleteRoom = function deleteRoom(req, res) {
-
-        // Get the roomId from the end of the request URL
-        var roomId = req.params.roomId;
-
-        // Search for the room based on the URL
-        db.Room.findOne({ roomId: roomId },function(err, room) {
-            // If the room is found
-            if (room) {
-                // Delete it
-                room.remove();
-                // Send a success message
-                res.send({status:"ok", message:"Room " + room.name + " deleted."});
-            } else {
-                // If the room is not found return a failure message
-                res.send({status:"nok", message:"Room could not be deleted"}); 
-            }
-        });
-    };
 
     exports.renderSettings = function renderSettings(req, res) {
 
@@ -357,138 +325,7 @@ module.exports = function(app, db) {
     };
     
 
-    exports.renderAddRoom = function renderAddRoom(req, res) {
-
-        db.Theme.find({}, function(err, themes) {
-            res.render('admin/add-room', {
-                user: req.user,
-                themes: themes,
-                scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
-                wizard: req.query.wizard,
-                theme: req.query.theme
-            }); 
-        });
-
-    };
-
-    exports.addRoom = function addRoom(req, res) {
-            console.log('Adding room: ' + req.body.name);
-            // Create a new room with the data from the add_room form
-            var newRoom = new db.Room({ 
-                name: req.body.name,
-                maxUsers: req.body.maxUsers,
-                hasVideo: req.body.hasVideo,
-                hasAudio: req.body.hasAudio,
-                hasMessaging: req.body.hasMessaging,
-                hasFilesharing: req.body.hasFilesharing,
-                hasCustomUserIds: req.body.hasCustomUserIds,
-                theme: req.body.theme,
-                recordAudio: req.body.recordAudio,
-                recordVideo: req.body.recordVideo,
-                logMessages: req.body.logMessages,
-                fullscreenEnabled: req.body.fullscreenEnabled,
-                popoutEnabled: req.body.popoutEnabled
-            });
-        
-            newRoom.save(function(err) {
    
-                // If the user is completing the wizard:
-                if (req.query.wizard) {
-                    //redirect to next step
-                    res.redirect(302, '/admin/add_session?wizard=3&room=' + encodeURIComponent(req.body.name)); 
-                } else {
-                    // Else the user to the dashboard
-                    res.redirect(302, '/admin/rooms'); 
-                }
-                
-                if (req.body.hasFilesharing) {
-                    console.log('newroom:' + newRoom.roomId);
-                    var newFileOptions = new db.FileOptions({
-                        roomId: newRoom.roomId,
-                        maxFileSize: req.body.maxFileSize,
-                        acceptedFileTypes: req.body.acceptedFileTypes.split(',')
-                    });
-                    newFileOptions.save();
-                }
-            });
-        
-            
-    };
-
-    exports.saveRoom = function saveRoom(req, res) {
-            // Get the room number from the requested url
-            var roomId = req.params.roomId;
-
-            var conditions = { roomId: roomId };
-            // Create a object to hold the new values
-            var updatedValues = { 
-                name: req.body.name,
-                maxUsers: req.body.maxUsers,
-                hasVideo: req.body.hasVideo,
-                hasAudio: req.body.hasAudio,
-                hasMessaging: req.body.hasMessaging,
-                hasFilesharing: req.body.hasFilesharing,
-                hasCustomUserIds: req.body.hasCustomUserIds,
-                theme: req.body.theme,
-                recordAudio: req.body.recordAudio,
-                recordVideo: req.body.recordVideo,
-                logMessages: req.body.logMessages,
-                fullscreenEnabled: req.body.fullscreenEnabled,
-                popoutEnabled: req.body.popoutEnabled
-            };
-
-            // Call update on the Room model, passing in the
-            // conditions that identify the room to update and the 
-            // values to update. On complete redirect to the rooms list
-            db.Room.update(conditions, updatedValues, {}, function() {
-                // Take the user to the dashboard
-                res.redirect(302, '/admin/rooms'); 
-            });
-    };
-
-    exports.renderEditRoom = function renderEditRoom(req, res) {
-
-        // Get the room number from the requested url
-        var room = req.params.roomId;
-
-        // Find the room in the DB and show the edit page for that room
-        db.Room.findOne({
-            roomId: room
-        }, function(err, room) {
-            // If the room is found, display it
-            if (room) {
-                
-                db.Theme.find({}, function(err, themes) {
-                    if (room.hasFilesharing) {
-                        db.FileOptions.findOne({ roomId : room.roomId }, function(err, fileOptions) {
-                            if (fileOptions && !err) {
-                                res.render('admin/edit-room', {
-                                    scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
-                                    room: room,
-                                    themes: themes,
-                                    fileOptions : fileOptions
-                                });  
-                            } else {
-                                // else redirect the user to the room list
-                                res.redirect(302, '/admin'); 
-                            }
-                        });
-                    } else {
-                        res.render('admin/edit-room', {
-                            user: req.user,
-                            scripts: [ '/scripts/jquery.min.js', '/scripts/admin/add-room.js' ],
-                            room: room,
-                            themes: themes
-                        });  
-                    }
-                });
-            } else {
-                // else redirect the user to the room list
-                res.redirect(302, '/admin'); 
-            }
-
-        });
-    };
     
     exports.renderLogs = function renderLogs(req, res) {
         
@@ -499,7 +336,7 @@ module.exports = function(app, db) {
                 res.render('admin/logs', {
                     user: req.user,
                     sessions: sessions,
-                    scripts: [ '/scripts/jquery.min.js', '/scripts/ect.min.js' ,'/scripts/admin/settings.js' ]
+                    scripts: [ '/scripts/jquery.min.js', '/scripts/ect.min.js' ,'/scripts/admin/logs.js' ]
                 });              
             }); // end find sessions based on unique ids
         }); // end find unique session ids in message

@@ -1,12 +1,12 @@
 /*
- * MyWebRTC Core
+ * InstantRTC Core
  * Tom Couchman 2015
  */
-(function (global) {
+var InstantRTC = function () {
     'use strict';
-    
+	
     // Private variables
-    var version = '0.1.2',        // Current version of the library
+    var version = '1.0.0',        // Current version of the library
         localPeerId, 
         displayName = 'Anonymous',
         peers = {},     // A map of PeerConnection objects that allow for WebRTC based communication
@@ -22,9 +22,9 @@
             shareLocalAudio: true,
             remoteVideo: true,
             hasMessaging: true,
-            allowScreensharing : true,
             iceServers: [],
-            fileSharing : true
+            fileSharing : true,
+			peerType : 'client'
         };
  
     
@@ -57,9 +57,7 @@
         
         // Merge default options with the options passed in.
         $.extend(options, options, opts)
-        
-   
-        
+
         // Loop through the iceServers passed in to create a list with the
         // required format for PeerConncetion
         $(options.iceServers).each(function(key, value) {
@@ -74,7 +72,7 @@
             !RTCSessionDescription ||
             !navigator.getUserMedia) {
             
-            $(MyWebRTC).trigger('browserNotSupported'); 
+            $(instantRTC).trigger('BrowserNotSupported'); 
             return;
             
         } 
@@ -96,10 +94,10 @@
                     localStream = stream;
 
                     // Trigger the event so subscribers are updated.
-                    $(MyWebRTC).trigger('GetLocalStream', [ stream ]);
+                    $(instantRTC).trigger('GetLocalStream', [ stream ]);
                     
                     setTimeout(function() {
-                        $(MyWebRTC).trigger('ReadyForCommunication');
+                        $(instantRTC).trigger('ReadyForCommunication');
                     }, 1000);
 
                 },
@@ -110,7 +108,7 @@
                 }
             );   
         } else {
-            $(MyWebRTC).trigger('ReadyForCommunication');
+            $(instantRTC).trigger('ReadyForCommunication');
         }
         
 
@@ -119,7 +117,7 @@
     // Setter for display name
     var setDisplayName = function(name) {
         displayName = name;   
-        $(MyWebRTC).trigger('DisplayNameChanged', [ name ]);
+        $(instantRTC).trigger('DisplayNameChanged', [ name ]);
     }
     
     var setAudioEnabled = function(value) {
@@ -132,7 +130,7 @@
         if (localStream.getVideoTracks()[0]) {
             localStream.getVideoTracks()[0].enabled = value;
         }
-        $(MyWebRTC).trigger("LocalVideoTrackToggled", value);
+        $(instantRTC).trigger("LocalVideoTrackToggled", value);
     }
     
     var close = function() {
@@ -147,7 +145,7 @@
             localStream.stop();
             
         });
-        $(MyWebRTC).trigger('Disconnected');
+        $(instantRTC).trigger('Disconnected');
     }
     
     // Recieve ice candidates from the remote peers.
@@ -160,13 +158,13 @@
         
         // Create a  new Peer object, pass in a new PeerConnecion
         // and store in the peers map.
-        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging);
+        peers[remotePeerId] = new InstantRTC.Connection(this, remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging);
         attachHandlers(peers[remotePeerId]);
         
         // Create an offer
         peers[remotePeerId].createOffer(function(offer) {
             // Trigger the CreateOffer event so subscribers are updated.
-            $(MyWebRTC).trigger("CreateOffer", [ remotePeerId, displayName, offer ]);
+            $(instantRTC).trigger("CreateOffer", [ remotePeerId, displayName, offer, options.peerType ]);
         });
 
     }
@@ -179,7 +177,7 @@
             $(connection).on('MessageReceived', function(event, data) {
 				console.log(event);
 				console.log('relaying message');
-				$(MyWebRTC).trigger("MessageReceived", [ event.target.id, event.target.displayName, data ]);
+				$(instantRTC).trigger("MessageReceived", [ event.target.id, event.target.displayName, data ]);
 			});
         }
         if (options.fileSharing) {
@@ -187,24 +185,29 @@
             
             // Relay file updates
             $(connection).on("DownloadStarted", function(event, fileId) {  
-                $(MyWebRTC).trigger("DownloadStarted", [ connection.id, fileId ]);                 
+                $(instantRTC).trigger("DownloadStarted", [ connection.id, fileId ]);                 
             });
             $(connection).on('DownloadComplete', function(event, fileId, file) {  
-                $(MyWebRTC).trigger("DownloadComplete", [ connection.id, fileId, file ]);                
+                $(instantRTC).trigger("DownloadComplete", [ connection.id, fileId, file ]);                
             });
             $(connection).on("DownloadProgress", function(event, fileId, progress) {  
-                $(MyWebRTC).trigger("DownloadProgress", [ connection.id, fileId, progress ]);            
+                $(instantRTC).trigger("DownloadProgress", [ connection.id, fileId, progress ]);            
             });
             $(connection).on("FileSendStarted", function(event, fileId) {  
-                $(MyWebRTC).trigger("FileSendStarted", [ connection.id, fileId ]);                 
+                $(instantRTC).trigger("FileSendStarted", [ connection.id, fileId ]);                 
             });
             $(connection).on('FileSendComplete', function(event, fileId, file) {  
-                $(MyWebRTC).trigger("FileSendComplete", [ connection.id, fileId, file ]);                
+                $(instantRTC).trigger("FileSendComplete", [ connection.id, fileId, file ]);                
             });
             $(connection).on("FileSendProgress", function(event, fileId, progress) {  
                 console.log('got progress');
-                $(MyWebRTC).trigger("FileSendProgress", [ connection.id, fileId, progress ]);            
+                $(instantRTC).trigger("FileSendProgress", [ connection.id, fileId, progress ]);          
             });
+			$(connection).on("CreateAnswer", function(event, id, displayname, answer) {  
+                $(instantRTC).trigger("CreateAnswer", [ id, displayname, answer, options.peerType ]);         
+            });
+				
+			
         }
     }
     
@@ -219,29 +222,21 @@
         };
         
         // Then trigger a fileOfferRecieved event
-        $(MyWebRTC).trigger("FileOfferRecieved", [ event.target.id, event.target.displayName, name, size ]);
+        $(instantRTC).trigger("FileOfferRecieved", [ event.target.id, event.target.displayName, name, size ]);
     }
-     
-	
-	// TODO: remove?
-    // handler for when a Connection recieves a message
-    /*var onFileAccept = function(event, name) {
-        //$(MyWebRTC).trigger("FileAccept", [ event.target.id, receivedData.name ]);
-        fileOfferAccepted(event.target.id, name);
-    }*/
     
-    var onDataChannelOpen = function() {
+    var onDataChannelOpen = function(event) {
         // If no data channels were previously opened:
         if (!dataChannelOpen) {
             // Set dataChannelOpen to true to indicate messages can be sent
             dataChannelOpen = true;
             // Trigger the DataChannelOpen event so subscribers know
             // messages can be sent
-            $(MyWebRTC).trigger("DataChannelOpen");
+            $(instantRTC).trigger("DataChannelOpen");
         }
     };
     
-    var onDataChannelClosed = function() {
+    var onDataChannelClosed = function(event) {
         // Loop through each peer to check if a channel is still open
         var openChannels = $.map(peers, function(obj, key) {
             if (obj.peerConnection.sendDataChannel.readyState === 'open') {
@@ -255,7 +250,7 @@
             dataChannelOpen = false;
             // Trigger the DataChannelClosed event so subscribers know
             // messages can't be sent
-            $(MyWebRTC).trigger("DataChannelClosed");
+            $(instantRTC).trigger("DataChannelClosed");
         }
     };
     
@@ -269,41 +264,35 @@
         delete peers[remotePeerId];
         
         // Publish an event so subscribers are notified of the users departure
-        $(MyWebRTC).trigger('PeerDisconnected', [ remotePeerId, peerName ]);
+        $(instantRTC).trigger('PeerDisconnected', [ remotePeerId, peerName ]);
     }    
     
     // When the user accepts a file, relay the request to the relevant connection
     var acceptFile = function(senderId, fileName) {
         peers[senderId].acceptFileOffer(fileName);
     }
-        
-	
-	// TODO : remove?
-    /*var fileOfferAccepted = function(target, name) {
-
-    }*/
     
-    // Method by which remote offers can be passed to the local MyWebRTC object
+    // Method by which remote offers can be passed to the local instantRTC object
     var addOffer =  function(remotePeerId, peerDisplayName, peerType, offer) {
         
         // Generate a Peer object, pass in a peer connection.
         // Store peer in the peers map.
-        peers[remotePeerId] = new MyWebRTC.Connection(remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging, peerType, peerDisplayName);
+        peers[remotePeerId] = new InstantRTC.Connection(this, remotePeerId, localStream, peerConfiguration, peerOptions, options.hasMessaging, peerType, peerDisplayName);
         attachHandlers(peers[remotePeerId]);
         
         peers[remotePeerId].addOffer(offer);
-        $(MyWebRTC).trigger("PeerConnected", [ remotePeerId, peerDisplayName ]);
+        $(instantRTC).trigger("PeerConnected", [ remotePeerId, peerDisplayName ]);
 
     };
 
-    // Method by which remote answers can be passed to the local MyWebRTC object
+    // Method by which remote answers can be passed to the local instantRTC object
     var addAnswer = function(remotePeerId, peerDisplayName, peerType, answer) {
         
         peers[remotePeerId].type = peerType;
         peers[remotePeerId].displayName = peerDisplayName;
         peers[remotePeerId].addAnswer(answer, function(){ });
         
-        $(MyWebRTC).trigger("PeerConnected", [ remotePeerId, peerDisplayName ]);
+        $(instantRTC).trigger("PeerConnected", [ remotePeerId, peerDisplayName ]);
     }
     
 
@@ -316,7 +305,7 @@
         // Sanitize the message to ensure no html is being sent
         var sanitizedMessage = sanitizeString(message);
 
-        $(MyWebRTC).trigger("MessageSent", [ sanitizedMessage ]);
+        $(instantRTC).trigger("MessageSent", [ sanitizedMessage ]);
         
         // Loop through each of the peers
         $.map(peers, function(connection, key) {
@@ -337,6 +326,7 @@
             
             // Loop through each of the peers
             $.map(peers, function(peer,key) {
+				console.log('sending file to peer');
                 // Send the data to the peer connection, with the type 'message'
                 peer.sendFile(file);
             });
@@ -357,7 +347,7 @@
     }
     
     // Public methods / members:
-    var MyWebRTC = {
+    var instantRTC = {
         version: version,           // Rreturns the current version of the library
         getOptions: function() { return options; },
         init : init,
@@ -365,6 +355,7 @@
         getPeers : function() { return peers },
         setDisplayName : setDisplayName,
         getDisplayName: function() { return displayName; },
+		getPeerType: function() { return options.peerType; },
         connect : connect,
         removePeer : removePeer,
         addOffer : addOffer,
@@ -385,11 +376,6 @@
         }
     };
     
-    if (global.MyWebRTC) {
-        throw new Error('MyWebRTC Already Defined');
-    } else {
-        global.MyWebRTC = MyWebRTC;
-    }
-    
+	return instantRTC;
 
-}(window));
+};

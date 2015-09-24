@@ -2,7 +2,7 @@
 /**
     Admin Routes
 */
-module.exports = function(app, admin, session, theme) {
+module.exports = function(app, admin, session, theme, room) {
 
     // Middleware for checking whether a user is authenticated.
     // Easily added to route code by placing the middleware method
@@ -56,12 +56,7 @@ module.exports = function(app, admin, session, theme) {
     // Change password
     app.post('/admin/account/change_email_address', checkAuthenticated, admin.changeEmailAddress);
 
-    // On get request for rooms list
-    app.get('/admin/rooms', checkAuthenticated, admin.renderRooms);
 
-
-    // On client room delete request with the id of the room to be deleted.
-    app.delete('/admin/rooms/:roomId', checkAuthenticated, admin.deleteRoom);
 
     // On client get request for the sessions list
     app.get('/admin/sessions', checkAuthenticated, session.renderSessions);
@@ -103,14 +98,20 @@ module.exports = function(app, admin, session, theme) {
 
     // Route for deleting a theme
     app.delete('/admin/themes/:themeId', checkAuthenticated, theme.deleteTheme);
+	
+    // On get request for rooms list
+    app.get('/admin/rooms', checkAuthenticated, room.renderRooms);
+
+    // On client room delete request with the id of the room to be deleted.
+    app.delete('/admin/rooms/:roomId', checkAuthenticated, room.deleteRoom);
     
-    app.get('/admin/add_room', checkAuthenticated, admin.renderAddRoom);
+    app.get('/admin/add_room', checkAuthenticated, room.renderAddRoom);
 
-    app.post('/admin/add_room', checkAuthenticated, admin.addRoom);
+    app.post('/admin/add_room', checkAuthenticated, room.addRoom);
 
-    app.post('/admin/edit_room/:roomId', checkAuthenticated, admin.saveRoom);
+    app.post('/admin/edit_room/:roomId', checkAuthenticated, room.saveRoom);
 
-    app.get('/admin/edit_room/:roomId', checkAuthenticated, admin.renderEditRoom);
+    app.get('/admin/edit_room/:roomId', checkAuthenticated, room.renderEditRoom);
     
     app.get('/admin/logs/', checkAuthenticated, admin.renderLogs); // end get /admin/logs
     

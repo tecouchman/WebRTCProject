@@ -1,5 +1,5 @@
 /*
-    Main MyWebRTC module.
+    Main InstantRTC module.
     Sets up the routes, controllers, and backend API
     
     @author Tom Couchman
@@ -42,7 +42,7 @@ module.exports.init = function (port) {
     // stored in the 'port' variable.
     http.listen(port, function(){
         // Indicate the the port is listening
-        console.log('MyWebRTC Started');
+        console.log('InstantRTC Started');
         console.log('Listening on port ' + port);
     });
     
@@ -52,8 +52,18 @@ module.exports.initShared = function(app, http) {
 
     // Load the config data, to set up the database.
     config.getConfig(function(config) {
-        // init the db
-        db.init(config.dbURL, config.dbUser, config.dbPassword, config.dbTablePrefix);  
+		
+		if (config.dbURL) {
+        	// init the db
+        	var connection = db.init(config.dbURL, config.dbUser, config.dbPassword, config.dbTablePrefix, function(connection) {
+				if (!connection) {
+					console.log('Could not connect to the databse. Please ensure that mongoDB is running.');	
+				}
+			});
+			
+		} else {
+			console.log('Database details have not beed entered. Please go to \'/install\' in your browser.');	
+		}
 
     });
     
@@ -153,17 +163,18 @@ module.exports.initShared = function(app, http) {
 
     // Start the signalling server
     var signallingServer = require('./signalling');
-    signallingServer.set(http, db, ses);   
+    signallingServer.init(http, db, ses);   
 
     // Set up controllers;
     var adminController = require('./controllers/admin')(app, db);
+	var roomController = require('./controllers/Room')(app, db);
     var sessionController = require('./controllers/session')(app, db);
     var themeController = require('./controllers/theme')(app, db);
     var installationController = require('./controllers/installation')(app, db, adminController);
     var userController = require('./controllers/user.js')(app);
 
     // Pass controllers to routes
-    var adminRoutes = require('./routes/admin')(app, adminController, sessionController, themeController);
+    var adminRoutes = require('./routes/admin')(app, adminController, sessionController, themeController, roomController);
     var installationRoutes  = require('./routes/installation')(app, installationController);
     var userRoutes  = require('./routes/user')(app, userController);
 

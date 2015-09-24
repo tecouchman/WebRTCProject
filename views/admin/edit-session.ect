@@ -18,9 +18,9 @@
         <input id="rtc-add-session-url" type="text" name="url" value="<%= @session.url %>" />
     </fieldset>
     <fieldset>
-        <label>Password Protected</label>
         <input id="rtc-add-session-password-protected" type="checkbox" name="passwordProtected" <% if @session.passwordProtected : %>checked<%end%> />
         <label for="rtc-add-session-password-protected"></label>
+        <label for="rtc-add-session-password-protected">Password Protected</label>
     </fieldset>
     <div id="rtc-add-session-password-section" class="info <% if !@session.passwordProtected : %>hidden<%end%>">
         <fieldset>
@@ -30,9 +30,10 @@
         </fieldset>
     </div>
     <fieldset>
-        <label>Embeddable</label>
-        <input id="rtc-add-session-embeddable" type="checkbox" name="embeddable"  <% if @session.embeddable : %>checked<%end%>/>
+		<input id="rtc-add-session-embeddable" type="checkbox" name="embeddable"  <% if @session.embeddable : %>checked<%end%>/>
         <label for="rtc-add-session-embeddable"></label>
+        <label for="rtc-add-session-embeddable">Embeddable</label>
+
     </fieldset>
         
     <div id="rtc-add-session-embed-section" class="info <% if !@session.embeddable : %>hidden<%end%>">

@@ -43,7 +43,6 @@ module.exports = function(mongoose, prefix) {
                         return next(err);
                    }
                     
-                    console.log(hash);
                     // replace the password with the hash
                     newUser.password = hash;
                     next();
@@ -69,11 +68,9 @@ module.exports = function(mongoose, prefix) {
             }
             
             bcrypt.compare(password, user.password, function(err, match) {
-                console.log('bcrypt compare match? ' + match);
                 
                 // if an error occurred
                 if (err) {
-                    console.log('bcrypt compare error');
                     return callback(err);
                 } else if (!match){
                     callback(null, null) 

@@ -3,12 +3,18 @@
 <form action="/admin/edit_room/<%= @room.roomId %>" method="post">
     <fieldset>
         <label>Room Name</label>
-        <input id="rtc-add-room-name" type="text" name="name" value="<%= @room.name %>" />
+        <input id="rtc-add-room-name" type="text" name="name" value="<%= @room.name %>" required />
     </fieldset>
     <fieldset>
         <label>Max Users</label>
         <p>Set to 0 for unlimited.</p>
         <input id="rtc-add-room-max-users" type="number" name="maxUsers" value="<%= @room.maxUsers %>" />
+    </fieldset>
+    <fieldset>
+        <input id="rtc-add-room-presentation" type="checkbox" name="isPresentation" <% if @room.isPresentation : %>checked<%end%> />
+        <label for="rtc-add-room-presentation"></label>
+        <label for="rtc-add-room-presentation">Presentation</label>
+    <p class="info">For one-to-many presentations. When one user is the focus of room, e.g. a lecturer teaching a lessons, then set presentation to true.</p>
     </fieldset>
     <fieldset>
         <input id="rtc-add-room-video" type="checkbox" name="hasVideo" <% if @room.hasVideo : %>checked<%end%> />
@@ -48,7 +54,6 @@
         <label for="rtc-add-room-custom-ids">Custom Usernames</label>
         <div class="info">Allow users to set a custom display name</div>
     </fieldset>
-        
     <fieldset>
         <label>Theme</label>
         <select id="rtc-add-room-theme" name="theme">
@@ -58,17 +63,6 @@
         </select>
     </fieldset>
     <fieldset>
-        
-        <input id="rtc-add-room-record-audio" type="checkbox" name="recordAudio"  <% if @room.recordAudio : %>checked<%end%> />
-        <label for="rtc-add-room-record-audio"></label>
-        <label for="rtc-add-room-record-audio">Record Audio</label>
-    </fieldset>
-    <fieldset>
-        <input id="rtc-add-room-record-video" type="checkbox" name="recordVideo" <% if @room.recordVideo : %>checked<%end%>  />
-        <label for="rtc-add-room-record-video"></label>
-        <label for="rtc-add-room-record-video">Record Video</label>
-    </fieldset>
-    <fieldset>
         <input id="rtc-add-room-log-messages" type="checkbox" name="logMessages" <% if @room.logMessages : %>checked<%end%> />
         <label for="rtc-add-room-log-messages"></label>
         <label for="rtc-add-room-log-messages">Log Messages</label>
@@ -76,7 +70,7 @@
     <fieldset>
         <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" <% if @room.fullscreenEnabled : %>checked<%end%> />
         <label for="rtc-add-room-fullscreen"></label>
-        <label for="rtc-add-room-fullscreen">Fullscreen</label>
+        <label for="rtc-add-room-fullscreen">Allow Fullscreen</label>
     </fieldset>
         <input id="rtc-add-room-popout" type="checkbox" name="popoutEnabled" <% if @room.popoutEnabled : %>checked<%end%> />
         <label for="rtc-add-room-popout"></label>

@@ -8,42 +8,38 @@
 <form action="/admin/add_room<% if @wizard: %>?wizard=<%- @wizard %><% end %>" method="post">
     <fieldset>
         <label>Room Name</label>
-        <input id="rtc-add-room-name" type="text" name="name" />
+        <input id="rtc-add-room-name" type="text" name="name" required />
     </fieldset>
     <fieldset>
         <label>Max Users</label>
         <p>Set to 0 for unlimited.</p>
         <input id="rtc-add-room-max-users" type="number" name="maxUsers" value="5" />
     </fieldset>
-    <h2>Broadcast Media</h2>
-    <p class="info">For one-to-many presentations. When one user is the focus of room, e.g. a lecturer teaching a lessons, then set presentation to true.</p>
     <fieldset>
-        <label>Presentation</label>
         <input id="rtc-add-room-presentation" type="checkbox" name="isPresentation" />
         <label for="rtc-add-room-presentation"></label>
+        <label for="rtc-add-room-presentation">Presentation</label>
+    <p class="info">For one-to-many presentations. When one user is the focus of room, e.g. a lecturer teaching a lessons, then set presentation to true.</p>
     </fieldset>
-    <h2>Client Media</h2>
-    <p class="info">Setting for visitors to the rooms</p>
     <fieldset>
-        <label>Video</label>
         <input id="rtc-add-room-video" type="checkbox" name="hasVideo" />
         <label for="rtc-add-room-video"></label>
+        <label for="rtc-add-room-video">Video</label>
     </fieldset>
     <fieldset>
-        <label>Audio</label>
         <input id="rtc-add-room-audio" type="checkbox" name="hasAudio" />
         <label for="rtc-add-room-audio"></label>
+        <label for="rtc-add-room-audio">Audio</label>
     </fieldset>
     <fieldset>
-        <label>Messaging</label>
-        <p class="info">Messaging will still be between all peers, even in presentation mode.</p>
         <input id="rtc-add-room-messaging" type="checkbox" name="hasMessaging" />
         <label for="rtc-add-room-messaging"></label>
+        <label for="rtc-add-room-messaging">Messaging</label>
     </fieldset>
     <fieldset>
-        <label>File Sharing</label>
-        <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" />
+	    <input id="rtc-add-room-filesharing" type="checkbox" name="hasFilesharing" />
         <label for="rtc-add-room-filesharing"></label>
+        <label for="rtc-add-room-filesharing">File Sharing</label>
     </fieldset>
     <div id="rtc-file-sharing-section" class="info hidden">
         <fieldset>
@@ -58,9 +54,10 @@
         </fieldset>
     </div>
     <fieldset>
-        <label>Custom Usernames</label>
-        <input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" />
+		<input id="rtc-add-room-custom-ids" type="checkbox" name="hasCustomUserIds" />
         <label for="rtc-add-room-custom-ids"></label>
+        <label for="rtc-add-room-custom-ids">Custom Usernames</label>
+		<div class="info">Allow users to set a custom display name</div>
     </fieldset>
     <fieldset>
         <label>Theme</label>
@@ -71,30 +68,20 @@
         </select>
     </fieldset>
     <fieldset>
-        <label>Record Audio</label>
-        <input id="rtc-add-room-record-audio" type="checkbox" name="recordAudio" />
-        <label for="rtc-add-room-record-audio"></label>
-    </fieldset>
-    <fieldset>
-        <label>Record Video</label>
-        <input id="rtc-add-room-record-video" type="checkbox" name="recordVideo" />
-        <label for="rtc-add-room-record-video"></label>
-    </fieldset>
-    <fieldset>
-        <label>Log Messages</label>
         <input id="rtc-add-room-log-messages" type="checkbox" name="logMessages" />
         <label for="rtc-add-room-log-messages"></label>
+        <label for="rtc-add-room-log-messages">Log Messages</label>
     </fieldset>
     <fieldset>
-        <label>Allow Fullscreen</label>
         <input id="rtc-add-room-fullscreen" type="checkbox" name="fullscreenEnabled" />
         <label for="rtc-add-room-fullscreen"></label>
+        <label for="rtc-add-room-fullscreen">Allow Fullscreen</label>
     </fieldset>
     <fieldset>
-    <label>Allow Popout</label>
-        <div class="info">Allow users to open the chat room in a popup window</div>
         <input id="rtc-add-room-popout" type="checkbox" name="popoutEnabled" />
         <label for="rtc-add-room-popout"></label>
+    	<label for="rtc-add-room-popout">Allow Popout</label>
+        <div class="info">Allow users to open the chat room in a popup window</div>
     </fieldset>
     <button id='rtc-add-room-button' type="submit">Add Room</button>
     <a type="submit" href="/admin/rooms" class="button-red" ><span>Cancel</span></a>

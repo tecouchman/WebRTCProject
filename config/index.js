@@ -13,7 +13,8 @@ var fs = require('fs'),
     // object to store the config key-value pairs
     config,
     // location to load/store the config data
-    filename = './config/config.json';
+    filename = __dirname + '/config.json';
+console.log(__dirname + '/config.json');
          
 /*
     Method to load the config data from file. Loads data and then parses the json.
@@ -21,13 +22,16 @@ var fs = require('fs'),
 var loadConfig = function(callback) {
     // Read the file 
     fs.readFile(filename, function(err, data) {
-        if (!err && data) {
+        if (!err && data && data.length != 0) {
             config = JSON.parse(data.toString());
+			console.log('config loaded : ' + config.dbURL);
             callback(config);
-        } else if (err) {
-            // Read failed, display a message
-            console.error(err);   
-        }
+        } else {
+			console.log('empty config');
+			// If no config to load
+			// set config to an empty object
+			config = {};	
+		}
     });
 };
 
@@ -44,7 +48,7 @@ var saveConfig = function() {
     fs.writeFile(filename, configString, function(err) {
         // if write failed, display a message
         if (err) {
-            console.error(err.message);   
+            console.error('Could not save config file: ' + err.message);   
         }
 
     });
@@ -71,6 +75,7 @@ module.exports.getConfig = function(callback) {
 */
 module.exports.add = function(key, value) {
     config[key] = value;
+	console.log('saving file');
     saveConfig();
 }
 

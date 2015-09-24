@@ -292,6 +292,11 @@ a.button {
     margin: 0;
 }
 
+.info.confirm {
+    color: #0DB79D;
+    border-color: #0DB79D;
+}
+
 
 .setting-description {
     margin: 0 0px 10px 0;

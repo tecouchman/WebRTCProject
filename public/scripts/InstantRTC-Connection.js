@@ -1,6 +1,11 @@
-// Connection constructor function.
-MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options, dataConnection, type, displayName) {
-        
+/* Connection Object
+
+	For setting up a conneciton to and interacting with a remote peer
+*/
+InstantRTC.Connection = function(instantRTC, remotePeerId, localStream, configuration, options, dataConnection, type, displayName) {
+    
+	// Store a reference to the local connection object, so it can be accessed
+	// evev when 'this' changes due to scope.
     var _connection = this;
 
     this.id = remotePeerId;
@@ -20,7 +25,6 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
     if (localStream) {
         this.peerConnection.addStream(localStream);
     }
-    
     
     var onMessageHandler = function(event) {
         
@@ -44,15 +48,16 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
                 $(_connection).trigger("FileOffer", [ receivedData.data.name, receivedData.data.size ]);
                 break;
             
-            case 'fileAccept': // Else if a file has been offered
+            case 'fileAccept': // Else if an offered file has been accepted.
 
                 if (sentFileOffers[receivedData.data.name]) {
 
                     var file = sentFileOffers[receivedData.data.name].file;
                     
+					var utils = new InstantRTC.Utils();
                     // Use the file submodile to read the file as a data URL, then
                     // Send the file once the onLoad callback is called.
-                    MyWebRTC.File.readFileAsDataURL(file, function(event){
+                    utils.readFileAsDataURL(file, function(event){
 
                         // Send the file using the send file string method
                         sendFileString(event.target.result, file.name, event.target.result.length);
@@ -86,6 +91,9 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
                     downloads[fileId].append(receivedData.data);
                 
                 break;
+			default:
+				$(_connection).trigger("DataReceived", [ receivedData.data ]);
+				break;
         }
     }
         
@@ -93,7 +101,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
 
         _connection.peerConnection.sendDataChannel = e.channel;
 
-        $(MyWebRTC).trigger("DataChannelOpen");
+        $(instantRTC).trigger("DataChannelOpen");
 
         _connection.peerConnection.sendDataChannel.onmessage = onMessageHandler;
         
@@ -143,7 +151,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
     this.peerConnection.onicecandidate = function (e) {
         if (e.candidate) {
             // Trigger the GetIceCandidate event so subscribers are updated.
-            $(MyWebRTC).trigger("GetIceCandidate", [ remotePeerId, e.candidate ]);
+            $(instantRTC).trigger("GetIceCandidate", [ _connection.id, e.candidate ]);
         }
     };
 
@@ -155,7 +163,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
         _connection.stream = e.stream;
 
         // Trigger the GetRemoteStream event so subscribers are updated.
-        $(MyWebRTC).trigger("GetRemoteStream", [ _connection.id, _connection.peerType, e.stream ]);
+        $(instantRTC).trigger("GetRemoteStream", [ _connection.id, _connection.type, e.stream ]);
     } 
 
 
@@ -178,11 +186,10 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
                     _connection.peerConnection.setLocalDescription(answer);
 
                     // Trigger the CreateAnswer event so subscribers are updated.
-                    $(MyWebRTC).trigger("CreateAnswer", [ _connection.id, MyWebRTC.getDisplayName(), answer ]);
+                    $(_connection).trigger("CreateAnswer", [ _connection.id, instantRTC.getDisplayName(), answer ]);
                 }, 
                 function(err){
-                    // TODO: Error handling
-                    console.log(err);
+                    console.error(err);
                 },
                 answerConstraints
             );
@@ -308,7 +315,7 @@ MyWebRTC.Connection = function(remotePeerId, localStream, configuration, options
             data.size = size;
             
             // if the file is still large than the length of chunks being send
-            // then spilice of a chunk sized piece to send
+            // then splice of a chunk sized piece to send
             if (text.length > chunkLength) {
                 data.message = text.slice(0, chunkLength);
                 data.isLast = false;

@@ -1,14 +1,14 @@
 /*
- * MyWebRTC UI sub-module
+ * InstantRTC UI Controller
+ 
  * Tom Couchman 2015
  */
-MyWebRTC.UI = (function (container) {
+InstantRTC.UIController = function (instantRTC, opts, container, signaller) {
     'use strict';
-    
+	
     // Declare an object that will be accessible to the user
     // e.g. the public API
     var UIAPI,
-        moduleId = "MyWebRTC-UI",
         options,
         renderer = ECT({ root : '/views', ext : '.ect' }),
         streamCount = 0,
@@ -17,7 +17,7 @@ MyWebRTC.UI = (function (container) {
         attachedFile
     
     // Shim for the fullscreen API
-    document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    document.exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen ||     document.mozCancelFullScreen || document.msExitFullscreen;
     // Shim for webkit prefix on window.url
     window.url = window.url || window.webkitURL;
     
@@ -41,7 +41,8 @@ MyWebRTC.UI = (function (container) {
         localVideoPIP : true,
         hasVideo : true,
         hasAudio : true,
-        hasMessaging : true
+        hasMessaging : true,
+		isPresentation: false
     }
     
     var init = function(opts) {
@@ -153,7 +154,7 @@ MyWebRTC.UI = (function (container) {
     
     
     // When the core class indicates that the browser is not compatible.
-    $(MyWebRTC).on("browserNotSupported", function(evt) {
+    $(instantRTC).on("BrowserNotSupported", function(evt) {
     
         // clear the rtc container object
         container.html('');
@@ -165,21 +166,23 @@ MyWebRTC.UI = (function (container) {
     });
     
     // When the connectiont to the room is closed
-    $(MyWebRTC).on("Disconnected", function(evt) {
+    $(instantRTC).on("Disconnected", function(evt) {
         // remove all cotent fromt the video container
         $('#rtc-container').html('');
     });
     
-    $(MyWebRTC).on("GetLocalStream", function (evt, stream) {
+    $(instantRTC).on("GetLocalStream", function (evt, stream) {
         
+		if (options.isPresentation && instantRTC.getPeerType() == 'client')
+			return;
+		
         // Get a reference to the video container element
         var videoContainer = $('#rtc-video-container-center');
         
         streamCount++;
-    
-        var peerType = 'client';
+   
         
-        var container = $('<div class="rtc-video local ' + peerType + '" >') ;
+        var container = $('<div class="rtc-video local client" >') ;
         var rel = $('<div>').addClass('rtc-rel');
         var video = $('<video ' + srcTag +  '="' + ((srcTag == 'src') ? window.URL.createObjectURL(stream) : stream) + '" autoplay muted></video>');
         var controls = $('<div class="rtc-video-controls"></div>');
@@ -211,27 +214,26 @@ MyWebRTC.UI = (function (container) {
 
     });
     
-    $(MyWebRTC).on("GetRemoteStream", function (evt, remotePeerId, peerType, stream) {
-        
+    $(instantRTC).on("GetRemoteStream", function (evt, remotePeerId, peerType, stream) {
 
-        
-        peerType = 'client'
-        
+		if (options.isPresentation && peerType == 'client')
+			return;
+		
         // Get a reference to the video container element
         var videoContainer = $('#rtc-video-container-center');
         
-        if (options.localVideoPIP && !$('.rtc-video.local').hasClass('rtc-floating-video')) {
+        if (!options.isPresentation && !options.localVideoPIP && !$('.rtc-video.local').hasClass('rtc-floating-video')) {
             // When the local stream is alone, it has extra stylings,
             // so remove these when another user enters and move the video outside the div
              $('#rtc-video-container').append($('.rtc-video.local').addClass('rtc-floating-video'));
             // Set the local stream as the src of the moved local video element
             // as there is a browser/jquery issue where the stream stops when it moves
-            var localStream = MyWebRTC.getLocalMedia().getStream();
+            var localStream = instantRTC.getLocalMedia().getStream();
              $('.rtc-video.local video').attr(srcTag, ((srcTag == 'src') ? window.URL.createObjectURL(localStream) : localStream));
             streamCount--;
         }
             
-        var container = $('<div id="remote' + remotePeerId + '" class="rtc-video remote ' + peerType + '" >') ;
+        var container = $('<div id="remote' + remotePeerId + '" class="rtc-video remote  client" >') ;
         var rel = $('<div>').addClass('rtc-rel');
         var video = $('<video ' + srcTag +  '="' + ((srcTag == 'src') ? window.URL.createObjectURL(stream) : stream) + '" autoplay></video>');
         var controls = $('<div class="rtc-video-controls"></div>');
@@ -277,7 +279,7 @@ MyWebRTC.UI = (function (container) {
         arrangeStreams();
     });
     
-    $(MyWebRTC).on('RemoteVideoTrackToggled', function (evt, remotePeerId, enabled) {
+    $(instantRTC).on('RemoteVideoTrackToggled', function (evt, remotePeerId, enabled) {
         var remoteVideo = $('#remote' + remotePeerId);
 
         if (enabled) {
@@ -290,20 +292,18 @@ MyWebRTC.UI = (function (container) {
     
     // Rearrange streams to make use of the space available
     var arrangeStreams = function() {
-        var videoContainer = $('#rtc-video-container');
+		
+		
+		var videoContainer = $('#rtc-video-container');
         
         var videoClass = '.rtc-video';
-        
-        
+		        
         var videoElem = $(videoClass + ' video'), 
             videoBox = $(videoClass);
-        
-        
-            
-        
-        var maxWidth = 0;
-        var maxHeight = 0;
-        var maxSquare = 0;
+       
+        var maxWidth = 0, 
+			maxHeight = 0,
+			maxSquare = 0; 
         
         for (var counter = 1; counter <= streamCount; counter++) {
             var width = videoContainer.width() / counter;
@@ -339,7 +339,7 @@ MyWebRTC.UI = (function (container) {
         return canvas.toDataURL('img/png');
     }
     
-    $(MyWebRTC).on("PeerConnected", function(evt, remotePeerId, displayName) {
+    $(instantRTC).on("PeerConnected", function(evt, remotePeerId, displayName) {
         if (options.hasMessaging) {
             var newUserElem = $('<p>').append(displayName + " has joined the chat");
             $('#rtc-messages').append(newUserElem);
@@ -347,7 +347,7 @@ MyWebRTC.UI = (function (container) {
         }
     });
     
-    $(MyWebRTC).on("PeerDisconnected", function(evt, remotePeerId, displayName) {
+    $(instantRTC).on("PeerDisconnected", function(evt, remotePeerId, displayName) {
         
         
         var newUserElem = $('<p>').append(displayName + " has left the chat");
@@ -373,7 +373,7 @@ MyWebRTC.UI = (function (container) {
                 $('#rtc-video-container-center').append($('.rtc-video.local'));
                 // Set the local stream as the src of the moved local video element
                 // as there is a browser/jquery issue where the stream stops when it moves
-                var localStream = MyWebRTC.getLocalMedia().getStream();
+                var localStream = instantRTC.getLocalMedia().getStream();
                 $('.rtc-video.local video').attr(srcTag, ((srcTag == 'src') ? window.URL.createObjectURL(localStream) : localStream));
                 streamCount++;
                 
@@ -383,33 +383,33 @@ MyWebRTC.UI = (function (container) {
          });
     });
     
-    $(MyWebRTC).on('DataChannelOpen', function(evt) {
+    $(instantRTC).on('DataChannelOpen', function(evt) {
         // Enable the send button
         $('#rtc-send').removeAttr('disabled');
         $('#rtc-input-message').removeAttr('disabled');
     });
     
-    $(MyWebRTC).on('DataChannelClosed', function(evt) {
+    $(instantRTC).on('DataChannelClosed', function(evt) {
         $('#rtc-send').attr('disabled');
     });
     
     // When the user sends a message
-    $(MyWebRTC).on("MessageSent", function(evt, message) {
-        displayMessage('local', MyWebRTC.getDisplayName, message);
+    $(instantRTC).on("MessageSent", function(evt, message) {
+        displayMessage('local', instantRTC.getDisplayName, message);
     });
 
 
     // When the user receieves a message
-    $(MyWebRTC).on('FileSendComplete', function(evt, recipient, fileId, file) {
-        var reader = new FileReader();
-        MyWebRTC.File.readFileAsDataURL(file, function(event){
+    $(instantRTC).on('FileSendComplete', function(evt, recipient, fileId, file) {
+		var utils = new InstantRTC.Utils();
+        utils.readFileAsDataURL(file, function(event){
             displayDownloadComplete('local', fileId, event.target.result);
         })
         
     });
                    
     // When the user receieves a message
-    $(MyWebRTC).on('DownloadComplete', function(evt, sender, fileId, file) {
+    $(instantRTC).on('DownloadComplete', function(evt, sender, fileId, file) {
         displayDownloadComplete(sender, fileId, file);
     });
     
@@ -433,7 +433,7 @@ MyWebRTC.UI = (function (container) {
             var anchor = $('<span>').text('File ' + fileId + ' sent.');
             downloadElem.append(anchor);
         } else {
-            var anchor = $('<a>').text('Download').attr('download', fileId).attr('href',file);
+            var anchor = $('<a>').text('Save').attr('download', fileId).attr('href',file);
             downloadElem.append(anchor);
         }
         
@@ -442,7 +442,7 @@ MyWebRTC.UI = (function (container) {
 
     
     // When a download starts
-    $(MyWebRTC).on('FileOfferRecieved', function(evt, senderId, senderName, fileName, filesize) {
+    $(instantRTC).on('FileOfferRecieved', function(evt, senderId, senderName, fileName, filesize) {
         
         var container = $('#rtc-messages');
         
@@ -453,7 +453,7 @@ MyWebRTC.UI = (function (container) {
         
         var accept = $('<button>').text('Accept').addClass('rtc-soft-button');
         accept.click(function(event){
-            MyWebRTC.acceptFile(senderId, fileName);
+            instantRTC.acceptFile(senderId, fileName);
         }) 
         var decline = $('<button>').text('Decline').addClass('rtc-soft-button');
         decline.click(function(event){
@@ -492,12 +492,12 @@ MyWebRTC.UI = (function (container) {
     });
     
     // When a download starts
-    $(MyWebRTC).on('DownloadStarted', function(evt, senderId, fileId) {
+    $(instantRTC).on('DownloadStarted', function(evt, senderId, fileId) {
         displayDownloadStarted(senderId, 'local', fileId);
     });
     
     // When an upload starts
-    $(MyWebRTC).on('FileSendStarted', function(evt, receiverId, fileId) {
+    $(instantRTC).on('FileSendStarted', function(evt, receiverId, fileId) {
         console.log('sending file');
         displayDownloadStarted('local', receiverId, fileId);
     });
@@ -518,9 +518,9 @@ MyWebRTC.UI = (function (container) {
         downloadElem.html('');
         var description = $('<p>').addClass('rtc-download-name');
         if (senderId == 'local') {
-            description.append('Uploading ' + fileId + ' to ' + receiverId);//MyWebRTC.getPeers[receiverId].displayName);   
+            description.append('Uploading ' + fileId + ' to ' + receiverId);
         } else {
-            description.append('Downloading ' + fileId + ' from ' + senderId);//MyWebRTC.getPeers[senderId].displayName);
+            description.append('Downloading ' + fileId + ' from ' + senderId);
         }
         
         downloadElem.append(description);
@@ -529,7 +529,7 @@ MyWebRTC.UI = (function (container) {
     }
     
     
-    $(MyWebRTC).on('FileSendProgress', function(evt, senderId, fileId, progress) {
+    $(instantRTC).on('FileSendProgress', function(evt, senderId, fileId, progress) {
         console.log('FileSendProgress: ' +progress);
         updateDownload(fileId, progress);
     });
@@ -540,12 +540,12 @@ MyWebRTC.UI = (function (container) {
     };
     
     // When data is recieved for a download
-    $(MyWebRTC).on('DownloadProgress', function(evt, senderId, fileId, progress) {
+    $(instantRTC).on('DownloadProgress', function(evt, senderId, fileId, progress) {
         updateDownload(fileId, progress);
     });
     
     // When the user receieves a message
-    $(MyWebRTC).on('MessageReceived', function(evt, sender, displayName, message) {
+    $(instantRTC).on('MessageReceived', function(evt, sender, displayName, message) {
         console.log('displaying message');
         displayMessage(sender, displayName, message);
     });
@@ -630,23 +630,23 @@ MyWebRTC.UI = (function (container) {
     })
     
     $('#rtc-send').click(function(e) {
-        
+       
         // Prevent default submit behaviour to avoid page reload.
         e.preventDefault();
         
         // If the user has entered a message then 
         // send it to the other peers
         if ($('#rtc-input-message').val() != '') {
-
+			
             // Send the message is the text box
-            MyWebRTC.sendMessage( $('#rtc-input-message').val() );
+            instantRTC.sendMessage( $('#rtc-input-message').val() );
         }
         
         // If the user has selected a file
         // send it to the other peers
         if (attachedFile != null) {
             // Send the message is the text box
-            MyWebRTC.sendFile( attachedFile );
+            instantRTC.sendFile( attachedFile );
             removeAttachment();
         }
         
@@ -659,7 +659,7 @@ MyWebRTC.UI = (function (container) {
         e.preventDefault();
         
         // Send the password to the server via the com submodule
-        MyWebRTC.Com.submitPassword($('#rtc-password-input').val());
+        signaller.submitPassword($('#rtc-password-input').val());
         
         return false;
     });
@@ -668,9 +668,9 @@ MyWebRTC.UI = (function (container) {
         var id = $(e.target).data('id');
 
         if (id == 'local') {
-            $(e.target).prop('checked') ? MyWebRTC.getLocalMedia().startVideo() : MyWebRTC.getLocalMedia().stopVideo();
+            $(e.target).prop('checked') ? instantRTC.getLocalMedia().startVideo() : instantRTC.getLocalMedia().stopVideo();
         } else {
-            $(e.target).prop('checked') ? MyWebRTC.getPeers()[id].startVideo() : MyWebRTC.getPeers()[id].stopVideo();
+            $(e.target).prop('checked') ? instantRTC.getPeers()[id].startVideo() : instantRTC.getPeers()[id].stopVideo();
         }
         //$(e.target).remove();
     });
@@ -678,14 +678,14 @@ MyWebRTC.UI = (function (container) {
     $('#rtc-video-container').on('change', '.audio-option', function(e){
         var id = $(this).data('id');
         if (id == 'local') {
-            $(this).prop('checked') ? MyWebRTC.getLocalMedia().startAudio() : MyWebRTC.getLocalMedia().stopAudio();
+            $(this).prop('checked') ? instantRTC.getLocalMedia().startAudio() : instantRTC.getLocalMedia().stopAudio();
         } else {
-            $(this).prop('checked') ? MyWebRTC.getPeers()[id].startAudio() : MyWebRTC.getPeers()[id] .stopAudio();
+            $(this).prop('checked') ? instantRTC.getPeers()[id].startAudio() : instantRTC.getPeers()[id] .stopAudio();
         }
     });
     
     container.on('click', '#rtc-displayname-submit', function(e) {
-        MyWebRTC.setDisplayName($('#rtc-displayname-input').val());
+        instantRTC.setDisplayName($('#rtc-displayname-input').val());
         $('#rtc-set-displayname-container').remove();
         // Return false to stop submit behaviour
         return false;
@@ -699,19 +699,20 @@ MyWebRTC.UI = (function (container) {
     });
     
     // Called if the password was correct
-    $(MyWebRTC).on("PasswordCorrect", function(evt) {
+    $(instantRTC).on("PasswordCorrect", function(evt) {
         $('#rtc-password-container').addClass('hidden');
     });
     
     // Called if the password was incorrect
-    $(MyWebRTC).on("PasswordIncorrect", function(evt) {
+    $(instantRTC).on("PasswordIncorrect", function(evt) {
         // Remove the 'hidden' class on the 'incorrect password' label
         // so it will be displayed to the user.
         $('#rtc-password-incorrect-label').removeClass('hidden');
     });
     
     // Called if the room is full
-    $(MyWebRTC).on("RoomFull", function(evt) {
+    $(instantRTC).on("RoomFull", function(evt) {
+					 console.log('hello');
         var data = { id : 'roomFull' , 
                     title : 'Room is Full',
                     message : 'Please try again later.'
@@ -758,7 +759,7 @@ MyWebRTC.UI = (function (container) {
         popoutButton.click(function(e) {
             
             // Close the connection
-            MyWebRTC.close();
+            instantRTC.close();
             window.open(window.location, "_blank", "resizable=yes, width=800, height=400");
             
         }); 
@@ -772,7 +773,7 @@ MyWebRTC.UI = (function (container) {
             }
             
             var popup = renderer.render('partials/popup-displayname', {
-                displayName : MyWebRTC.getDisplayName()   
+                displayName : instantRTC.getDisplayName()   
             });
             popupContainer.append(popup);
         }); 
@@ -799,12 +800,14 @@ MyWebRTC.UI = (function (container) {
         emoticonMenu.html(emoHtml); 
     }
     
+	
+	init(opts);
+	
     UIAPI = {
-        'init': init, // Initialisation method
         'toggleFullscreen': toggleFullscreen // Method to toggle fullscreen on an element. 
     };
     
     // Return the public methods/fields to the user
     return UIAPI;
     
-}($('#rtc-container') || document.body));
+};

@@ -1,3 +1,6 @@
+/*
+	Signalling server
+*/
 
 module.exports.getUserCount = function() {
     return Object.keys(clients).length;
@@ -8,20 +11,21 @@ var clients = {},
 // maps of room counts
 rooms = {};
 
-module.exports.set = function(http, db, session) {
+module.exports.init = function(http, db, session) {
     
     var io = require('socket.io')(http);
     var url = require('url');
     
-    
+    // Middleware to link the session used by the express server to 
+	// the web socket connection, therefore making it possibel to identify
+	// the user.
     io.use(function(socket, next) {
         session(socket.handshake, {}, next);
     });
     
     // Set up a listener for when a client connects (a user visits the page)
     io.on('connection', function(socket) {
-
-
+		
         console.log('client connection');
 
         // TODO: socket.request.headers.referer is undocumented, maybe unreliable
@@ -82,7 +86,7 @@ module.exports.set = function(http, db, session) {
 
                            iceServerUrls.push(elem.serverUrl);
                     });
-
+					
                     // Example options for testing:
                     /*  To be detemined for WebRTC connections
                         - Is the user sharing video
@@ -95,11 +99,11 @@ module.exports.set = function(http, db, session) {
                         'shareLocalAudio' : room.hasAudio,
                         'remoteVideo' : true,
                         'hasMessaging' : room.hasMessaging,
-                        'allowScreensharing' : room.allowScreensharing,
                         'iceServers' : iceServerUrls,
                         'fileSharing' : room.hasFilesharing,
                         'embeddable' :  session.embeddable,
-                        'displayName' : socket.handshake.session.rtc_userDisplayName
+                        'displayName' : socket.handshake.session.rtc_userDisplayName,
+						'peerType' : socket.handshake.session.rtc_userRole || 'client'
                     }
                     
                     if (room.hasFilesharing) {
@@ -132,6 +136,7 @@ module.exports.set = function(http, db, session) {
                         'localVideoPIP' : theme.localVideoPIP,
                         'hasVideo' : room.hasVideo,
                         'hasAudio' : room.hasAudio,
+						'isPresentation' : room.isPresentation,
                         'hasMessaging' : room.hasMessaging
                     }
                     

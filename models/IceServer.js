@@ -9,7 +9,7 @@ module.exports = function(mongoose, prefix) {
     var Schema = mongoose.Schema;
     
     var IceServerSchema = new Schema({
-        serverUrl: String,
+        serverUrl: { type: String, index: { unique : true } },
         type: { type: String, enum: ['STUN', 'TURN'] }
     });
 

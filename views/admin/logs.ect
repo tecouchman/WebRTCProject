@@ -10,6 +10,7 @@
                     <a href="/admin/logs/<%= session.sessionId %>">
                         <span><%= session.name %></span>
                     </a>
+						<button class="delete-button button-red button-small" data-id="<%= session.sessionId %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
                         <a class="button button-small text-button" href="/admin/logs/<%= session.sessionId %>" style="float: right">View</a>
                 </li>
             <% end %>

@@ -13,28 +13,29 @@ module.exports = function(app, renderer, userController) {
     var db = app.get('db'),
         exports = {};
 
-    exports.renderRoom = function(req, res, sessionName, userId, userDisplayName, userRole) {
+    exports.serveRoom = function(req, res, sessionName, userId, userDisplayName, userRole) {
     
         db.Session.findOne({
             name : sessionName
         }, function(err, session){
            
-            console.log('api session:'+ session.sessionId);
-            
-            // Add the passed in user info to the session, 
-            // ready for when the page is rendered/
-            req.session.rtc_session = session.sessionId;
-            req.session.rtc_userId = userId;
-            req.session.rtc_userDisplayName = userDisplayName;
-            req.session.rtc_userRole = userRole;
-
-            // Render the room using the renderRoom method on the 
-            // User controller
-            userController.renderRoomFromSession(req, res);
+           if (session && !err) {
+				// Add the passed in user info to the session, 
+				// ready for when the page is rendered/
+				req.session.rtc_session = session.sessionId;
+				req.session.rtc_userId = userId;
+				req.session.rtc_userDisplayName = userDisplayName;
+				req.session.rtc_userRole = userRole || 'client';
+				// Render the room using the renderRoom method on the 
+				// User controller
+				userController.renderRoomFromSession(req, res);
+		   } else {
+				res.send(renderError('Chat session not found', 'Please check the url and try again.'));   
+		   }
         });
     }
 
-    exports.render = function(userSession, sessionName, options, callback) {
+    exports.renderRoom = function(userSession, sessionName, options, callback) {
         
         options = options || {};
         
@@ -43,16 +44,16 @@ module.exports = function(app, renderer, userController) {
             
             // If err or session not found, render relevant error pages
             if (err) {
-                callback(renderError(renderer, 'An Error Ocurred','Please check the url and try again.'));
+                callback(renderError( 'An Error Ocurred','Please check the url and try again.'));
             } else if (!session) {
-                callback(renderError(renderer, 'Chat session not found', 'Please check the url and try again.'));
+                callback(renderError('Chat session not found', 'Please check the url and try again.'));
             } else {
             
                 // Add the passed in user info to the session, 
                 // ready for when the page is rendered/
                 userSession.rtc_session = session.sessionId;
                 userSession.rtc_userId = options.userId;
-                console.log(options.userId);
+
                 userSession.rtc_userDisplayName = options.userDisplayName;
                 userSession.rtc_userRole = options.userRole || 'client';
                 
@@ -61,9 +62,9 @@ module.exports = function(app, renderer, userController) {
 
                     // If err or room not found render relevant error messages
                     if (err) {
-                        callback(renderError(renderer, 'An Error Ocurred','Please check the address and try again.'));
+                        callback(renderError('An Error Ocurred','Please check the address and try again.'));
                     } else if (!room) {
-                        callback(renderError(renderer, 'Chat session not found', 'Please check the address and try again.'));
+                        callback(renderError('Chat session not found', 'Please check the address and try again.'));
                     }
 
                     // Find the them for the current room
@@ -88,11 +89,11 @@ module.exports = function(app, renderer, userController) {
                                         '/scripts/jquery.min.js',
                                         '/scripts/ect.min.js',
                                         '/scripts/adapter.js',
-                                        '/scripts/MyWebRTC.js',
-                                        '/scripts/MyWebRTC-Connection.js',
-                                        '/scripts/MyWebRTC-UI.js',
-                                        '/scripts/MyWebRTC-Com.js',
-                                        '/scripts/MyWebRTC-File.js',
+										'/scripts/InstantRTC-Core.js',
+										'/scripts/InstantRTC-Connection.js',
+										'/scripts/InstantRTC-UIController.js',
+										'/scripts/InstantRTC-Signaller.js',
+										'/scripts/InstantRTC-Utils.js',
                                         '/scripts/Client.js',
                                         '//cdn.jsdelivr.net/emojione/1.5.0/lib/js/emojione.min.js'
                                      ],
@@ -113,7 +114,7 @@ module.exports = function(app, renderer, userController) {
     }
 
     // Method to render the error page, with custom messages
-    var renderError = function renderInfo(renderer, title, message) {
+    var renderError = function renderInfo(title, message) {
         renderer.render('info', {
             title: title,
             message: message
@@ -121,17 +122,6 @@ module.exports = function(app, renderer, userController) {
     };
     
 
-    /* var options = {
-        name: 'something',
-        roomName: '',
-        roomId: '',
-        url: '',
-        password: ''
-        Embedable: ''
-    }
-
-    var callback = function(err, session){}
-    */
     exports.createSession = function(options, callback) {
 
         var dbCallback = function(err, room) {
@@ -152,6 +142,28 @@ module.exports = function(app, renderer, userController) {
         } else {
             callback({ message: "Room not found"}, null); 
         }
+    }
+	
+	
+	exports.findLogs = function(options, callback) {
+		
+		var criteria = {};
+		
+		if (options.sessionId != undefined) {
+			criteria.sessionId = options.sessionId;
+		} 
+		if (options.from && options.until) {
+			criteria.sentAt = { $gte: options.from, $lte: options.until };
+		} else {
+			if (options.from != undefined) {
+				criteria.sentAt = { $gte: options.from };
+			}
+			if (options.until != undefined) {
+				criteria.sentAt = { $lte: options.until };
+			}
+		}
+
+        db.Message.find(criteria , callback);
     }
 
 

@@ -7,6 +7,11 @@ module.exports = function(app, passport) {
     
     exports.renderRoomFromToken = function(req, res) {
         
+		// Reset any session data
+		req.session.rtc_userId = '';
+		req.session.rtc_userDisplayName = '';
+		req.session.rtc_userRole = '';
+		
         // Find the session in the database based on the sessionId passed by the user
         db.Session.findOne({ url : req.params.sessionURL }, function(err, session) {
             // If err or session not found, render relevant error pages
@@ -49,9 +54,11 @@ module.exports = function(app, passport) {
                 // If err or room not found render relevant error messages
                 if (err) {
                     renderError(res, 'An Error Ocurred','Please check the address and try again.');
-                } else if (!room) {
+                	return;
+				} else if (!room) {
                     renderError(res, 'Chat session not found', 'Please check the url and try again.');
-                }
+                	return;
+				}
 
                 // Find the theme for the current room
                 db.Theme.findOne({ _id: room.theme }, function(err, theme) {
@@ -76,11 +83,11 @@ module.exports = function(app, passport) {
                                     '/scripts/jquery.min.js',
                                     '/scripts/ect.min.js',
                                     '/scripts/adapter.js',
-                                    '/scripts/MyWebRTC.js',
-                                    '/scripts/MyWebRTC-Connection.js',
-                                    '/scripts/MyWebRTC-UI.js',
-                                    '/scripts/MyWebRTC-Com.js',
-                                    '/scripts/MyWebRTC-File.js',
+                                    '/scripts/InstantRTC-Core.js',
+                                    '/scripts/InstantRTC-Connection.js',
+                                    '/scripts/InstantRTC-UIController.js',
+                                    '/scripts/InstantRTC-Signaller.js',
+                                    '/scripts/InstantRTC-Utils.js',
                                     '/scripts/Client.js',
                                     '//cdn.jsdelivr.net/emojione/1.5.0/lib/js/emojione.min.js'
                                  ],

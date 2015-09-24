@@ -16,6 +16,7 @@ module.exports = function(mongoose, prefix) {
         // roomId: Number (Autoincrement), - added by the autoIncrement plugin
         name: String,
         maxUsers: Number,
+		isPresentation : Boolean,
         hasVideo: Boolean,
         hasAudio: Boolean,
         hasMessaging: Boolean,
@@ -25,7 +26,6 @@ module.exports = function(mongoose, prefix) {
         recordAudio: Boolean,
         recordVideo: Boolean,
         logMessages: Boolean,
-        allowScreensharing: Boolean,
         fullscreenEnabled: Boolean,
         popoutEnabled: Boolean
     });

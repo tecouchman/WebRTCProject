@@ -1,10 +1,4 @@
 module.exports = function(app, db) {
-        
-    var url = require('url'),
-        nodemailer = require('nodemailer'),
-        async = require('async'),
-        crypto = require('crypto'),
-        fs = require('fs');
     
     var exports = {};
     

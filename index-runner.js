@@ -15,18 +15,18 @@ var express = require('express'),
     app.use(renderer.compiler({ root : '/views', gzip: true }));*/
 
 
-var MyWebRTC = require('./index.js');
+var InstantRTC = require('./index.js');
 
 // basic setup:
-// var rtc = MyWebRTC.init(port);
+// var rtc = InstantRTC.init(port);
 
 // advanced setup:
-var rtc = MyWebRTC.initShared(app, http);
+var rtc = InstantRTC.initShared(app, http);
 
 // Rendering an advanced chat room i.e. with user names
 app.get('/test1', function(req, res) {
 
-    rtc.renderRoom(req, res, 'dWD', 'bobby', 'samuel');
+    rtc.serveRoom(req, res, 'Session', 'bobby', 'samuel', 'presenter');
 
 });
 
@@ -58,7 +58,7 @@ var options = {
     roomName : "ANewTypeTest"
 };
 
-MyWebRTC.createSession(options, function(err, session) {
+InstantRTC.createSession(options, function(err, session) {
     
     if (err) {
         console.log(err.message);

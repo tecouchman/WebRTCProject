@@ -1,9 +1,6 @@
 <li id="session<%= @session.sessionId %>" class='session' >
     <a href="/admin/edit_session/<%= @session.sessionId %>">
         <span><%= @session.name %></span>
-        <span><%= @session.url %></span>
-        <span><%= @session.embeddable %></span>
-        <span><%= @session.roomId %></span>
     </a>
     <button class="delete-button button-red button-small" data-id="<%= @session.sessionId %>" style="float: right; margin-left: 8px;"><img src="/images/icons/delete-white.png"></button>
         <a class="button button-small" href="/admin/edit_session/<%= @session.sessionId %>" style="float: right"><img src="/images/icons/edit-white.png"></a>

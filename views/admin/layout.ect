@@ -6,7 +6,7 @@
                 <% include 'partials/style', { 'style': style } %>
             <% end %>
         <% end %>
-        <title>MyWebRTC Admin Panel</title>
+        <title>InstantRTC Admin Panel</title>
     </head>
     <body>
         <header>
@@ -29,7 +29,7 @@
                     </ul>
                 </nav>
             <% end %>
-            <a href="/admin"><h1>MyWebRTC</h1></a>
+            <a href="/admin"><h1>InstantRTC</h1></a>
             </div>
         </header>
         <div class="container">
@@ -38,7 +38,7 @@
                     <p id="rtc-reset-message" class="error"><%= @messages.err  %></p>
                 <% end %>
                 <% if @messages.info? : %>
-                    <p id="rtc-reset-message" class="info"><%= @messages.info  %></p>
+                    <p id="rtc-reset-message" class="info confirm"><%= @messages.info  %></p>
                 <% end %>
             <% end %>
             <% content %>
@@ -55,20 +55,6 @@
             <% end %>
         <% end %>
             
-        <% if @showTests == true: %>
-            <div id="mocha"></div>
-            <script src="/tests/mocha.js"></script>
-            <script src="/tests/chai.js" /></script>
-            <link type="text/css" src="/tests/mocha.css" />
-            
-            <script>
-                mocha.ui('tdd');
-            </script>
-            <script src="/tests/tests.js" /></script>
-            <script>
-                mocha.run(); 
-            </script>
-        <% end %>
             
     </body>
 </html>
